@@ -1,11 +1,4 @@
-import {
-  format,
-  parseISO,
-  startOfDay,
-  isValid,
-  eachDayOfInterval,
-  getDay,
-} from 'date-fns'
+import { format, parseISO, startOfDay, isValid } from 'date-fns'
 import type { Lead } from '../types'
 
 const REENTRADA_TOKENS = ['reentrada', 're-entrada', 're entrada']
@@ -199,35 +192,3 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
   return arr
 }
 
-export type HeatmapCell = {
-  date: string
-  weekday: number
-  weekIndex: number
-  total: number
-}
-
-export function heatmapData(rows: Lead[]): HeatmapCell[] {
-  const series = dailySeries(rows)
-  if (!series.length) return []
-  const start = parseISO(series[0].date)
-  const end = parseISO(series[series.length - 1].date)
-  const days = eachDayOfInterval({ start, end })
-  const totalsByDate = new Map(series.map((p) => [p.date, p.total]))
-  return days.map((d, i) => ({
-    date: format(d, 'yyyy-MM-dd'),
-    weekday: getDay(d),
-    weekIndex: Math.floor(i / 7),
-    total: totalsByDate.get(format(d, 'yyyy-MM-dd')) ?? 0,
-  }))
-}
-
-export function distinctValues(rows: Lead[], key: keyof Lead): string[] {
-  const set = new Set<string>()
-  for (const r of rows) {
-    const v = (r[key] as unknown as string | null | undefined)
-    if (v == null) continue
-    const s = String(v).trim()
-    if (s) set.add(s)
-  }
-  return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
-}

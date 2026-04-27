@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -8,18 +8,13 @@ import {
   Table2,
 } from 'lucide-react'
 import { useLeads } from '../hooks/useLeads'
-import { useFiltered } from '../hooks/useFiltered'
-import { initialFilters, type Filters } from '../types'
-import { distinctValues } from '../lib/aggregations'
 import { fmtNumber } from '../lib/utils'
 import { cn } from '../lib/utils'
-import { FiltersPanel } from './Filters'
 import { KpiCards } from './KpiCards'
 import { StatusByFunilChart } from './charts/StatusByFunilChart'
 import { StatusDonut } from './charts/StatusDonut'
 import { FunilRanking } from './charts/FunilRanking'
 import { LeadsByFunilGrid } from './charts/LeadsByFunilGrid'
-import { Heatmap } from './charts/Heatmap'
 import { SegmentoChart } from './charts/SegmentoChart'
 import { CargoChart, FaturamentoChart } from './charts/CargoFaturamento'
 import { DataTable } from './table/DataTable'
@@ -29,21 +24,7 @@ type Tab = 'tabela' | 'graficos'
 export function Dashboard() {
   const { data, isLoading, isFetching, isError, error, refetch } = useLeads()
   const [tab, setTab] = useState<Tab>('tabela')
-  const [filters, setFilters] = useState<Filters>(initialFilters)
-  const filtered = useFiltered(data, filters)
-
-  const funilOptions = useMemo(
-    () => distinctValues(data ?? [], 'origem_primeira'),
-    [data],
-  )
-  const statusOptions = useMemo(
-    () => distinctValues(data ?? [], 'status_entrada'),
-    [data],
-  )
-  const segmentoOptions = useMemo(
-    () => distinctValues(data ?? [], 'segmento'),
-    [data],
-  )
+  const rows = data ?? []
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
@@ -106,32 +87,24 @@ export function Dashboard() {
           Supabase...
         </div>
       ) : tab === 'tabela' ? (
-        <DataTable rows={data ?? []} />
+        <DataTable rows={rows} />
       ) : (
         <div className="space-y-4">
-          <KpiCards rows={filtered} />
-          <FiltersPanel
-            filters={filters}
-            onChange={setFilters}
-            funilOptions={funilOptions}
-            statusOptions={statusOptions}
-            segmentoOptions={segmentoOptions}
-          />
+          <KpiCards rows={rows} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <StatusByFunilChart rows={filtered} />
-            <StatusDonut rows={filtered} />
+            <StatusByFunilChart rows={rows} />
+            <StatusDonut rows={rows} />
           </div>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <LeadsByFunilGrid rows={filtered} />
+              <LeadsByFunilGrid rows={rows} />
             </div>
-            <FunilRanking rows={filtered} />
+            <FunilRanking rows={rows} />
           </div>
-          <Heatmap rows={filtered} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <SegmentoChart rows={filtered} />
-            <CargoChart rows={filtered} />
-            <FaturamentoChart rows={filtered} />
+            <SegmentoChart rows={rows} />
+            <CargoChart rows={rows} />
+            <FaturamentoChart rows={rows} />
           </div>
         </div>
       )}

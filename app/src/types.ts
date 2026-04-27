@@ -11,30 +11,3 @@ export type Lead = {
   origem_todas: string[] | string | null
   status_entrada: string | null
 }
-
-export type PeriodPreset =
-  | 'ontem'
-  | '7d'
-  | '15d'
-  | '30d'
-  | '90d'
-  | 'all'
-  | 'custom'
-
-export type Filters = {
-  preset: PeriodPreset
-  startDate: string | null
-  endDate: string | null
-  funis: string[]
-  statuses: string[]
-  segmentos: string[]
-}
-
-export const initialFilters: Filters = {
-  preset: 'all',
-  startDate: null,
-  endDate: null,
-  funis: [],
-  statuses: [],
-  segmentos: [],
-}
