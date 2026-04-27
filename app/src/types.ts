@@ -8,7 +8,7 @@ export type Lead = {
   faturamento: string | null
   data_original: string | null
   origem_primeira: string | null
-  origem_todas: string | null
+  origem_todas: string[] | string | null
   status_entrada: string | null
 }
 

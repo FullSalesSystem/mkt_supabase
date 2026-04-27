@@ -28,12 +28,28 @@ export function categorizeStatus(status: string | null | undefined): StatusCateg
   return 'outro'
 }
 
+const BR_DATE = /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+
 export function safeDate(value: string | null | undefined): Date | null {
   if (!value) return null
-  const d = parseISO(value)
-  if (isValid(d)) return d
-  const d2 = new Date(value)
-  return isValid(d2) ? d2 : null
+  const s = String(value).trim()
+  const br = s.match(BR_DATE)
+  if (br) {
+    const [, dd, mm, yyyy, h = '0', mi = '0', se = '0'] = br
+    const d = new Date(
+      Number(yyyy),
+      Number(mm) - 1,
+      Number(dd),
+      Number(h),
+      Number(mi),
+      Number(se),
+    )
+    return isValid(d) ? d : null
+  }
+  const iso = parseISO(s)
+  if (isValid(iso)) return iso
+  const fallback = new Date(s)
+  return isValid(fallback) ? fallback : null
 }
 
 export function totalLeads(rows: Lead[]) {
@@ -64,8 +80,9 @@ export function countByStatus(rows: Lead[]) {
 export function taxaCadastro(rows: Lead[]) {
   if (!rows.length) return 0
   const c = countByStatus(rows)
-  const cadastrados = c.novo + c.entrada + c.reentrada
-  return cadastrados / rows.length
+  const novos = c.novo + c.entrada
+  const denom = novos + c.reentrada
+  return denom ? novos / denom : 0
 }
 
 export function leadsByFunil(rows: Lead[]) {
@@ -175,8 +192,9 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
     a.date.localeCompare(b.date),
   )
   for (const p of arr) {
-    const cadastrados = p.Novo + p.Entrada + p.Reentrada
-    p.taxa = p.total ? cadastrados / p.total : 0
+    const novos = p.Novo + p.Entrada
+    const denom = novos + p.Reentrada
+    p.taxa = denom ? novos / denom : 0
   }
   return arr
 }

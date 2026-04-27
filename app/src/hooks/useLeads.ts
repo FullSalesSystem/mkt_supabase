@@ -14,7 +14,7 @@ async function fetchAllLeads(): Promise<Lead[]> {
       .select(
         'id, nome, email, telefone, cargo, segmento, faturamento, data_original, origem_primeira, origem_todas, status_entrada',
       )
-      .order('data_original', { ascending: true })
+      .order('id', { ascending: true })
       .range(from, to)
     if (error) throw error
     if (!data || data.length === 0) break
