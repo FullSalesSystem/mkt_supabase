@@ -19,8 +19,6 @@ import { StatusByFunilChart } from './charts/StatusByFunilChart'
 import { StatusDonut } from './charts/StatusDonut'
 import { FunilRanking } from './charts/FunilRanking'
 import { LeadsByFunilGrid } from './charts/LeadsByFunilGrid'
-import { EvolutionChart } from './charts/EvolutionChart'
-import { DailyRateChart } from './charts/DailyRateChart'
 import { Heatmap } from './charts/Heatmap'
 import { SegmentoChart } from './charts/SegmentoChart'
 import { CargoChart, FaturamentoChart } from './charts/CargoFaturamento'
@@ -129,8 +127,6 @@ export function Dashboard() {
             </div>
             <FunilRanking rows={filtered} />
           </div>
-          <DailyRateChart rows={filtered} />
-          <EvolutionChart rows={filtered} />
           <Heatmap rows={filtered} />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <SegmentoChart rows={filtered} />
