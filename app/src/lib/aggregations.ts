@@ -1,0 +1,215 @@
+import {
+  format,
+  parseISO,
+  startOfDay,
+  isValid,
+  eachDayOfInterval,
+  getDay,
+} from 'date-fns'
+import type { Lead } from '../types'
+
+const REENTRADA_TOKENS = ['reentrada', 're-entrada', 're entrada']
+const NOVO_TOKENS = ['novo', 'lead novo', 'lead-novo']
+const ENTRADA_TOKENS = ['entrada', 'lead entrada']
+const PAROU_TOKENS = ['parou', 'regras', 'parou nas regras']
+
+const norm = (s: string | null | undefined) =>
+  (s ?? '').toString().trim().toLowerCase()
+
+export type StatusCategory = 'novo' | 'reentrada' | 'entrada' | 'parou' | 'outro'
+
+export function categorizeStatus(status: string | null | undefined): StatusCategory {
+  const s = norm(status)
+  if (!s) return 'outro'
+  if (REENTRADA_TOKENS.some((t) => s.includes(t))) return 'reentrada'
+  if (PAROU_TOKENS.some((t) => s.includes(t))) return 'parou'
+  if (NOVO_TOKENS.some((t) => s.includes(t))) return 'novo'
+  if (ENTRADA_TOKENS.some((t) => s.includes(t))) return 'entrada'
+  return 'outro'
+}
+
+export function safeDate(value: string | null | undefined): Date | null {
+  if (!value) return null
+  const d = parseISO(value)
+  if (isValid(d)) return d
+  const d2 = new Date(value)
+  return isValid(d2) ? d2 : null
+}
+
+export function totalLeads(rows: Lead[]) {
+  return rows.length
+}
+
+export function uniqueLeads(rows: Lead[]) {
+  const set = new Set<string>()
+  for (const r of rows) {
+    const key = (r.email || r.telefone || String(r.id)).toString().trim().toLowerCase()
+    if (key) set.add(key)
+  }
+  return set.size
+}
+
+export function countByStatus(rows: Lead[]) {
+  const counts: Record<StatusCategory, number> = {
+    novo: 0,
+    reentrada: 0,
+    entrada: 0,
+    parou: 0,
+    outro: 0,
+  }
+  for (const r of rows) counts[categorizeStatus(r.status_entrada)]++
+  return counts
+}
+
+export function taxaCadastro(rows: Lead[]) {
+  if (!rows.length) return 0
+  const c = countByStatus(rows)
+  const cadastrados = c.novo + c.entrada + c.reentrada
+  return cadastrados / rows.length
+}
+
+export function leadsByFunil(rows: Lead[]) {
+  const map = new Map<string, number>()
+  for (const r of rows) {
+    const key = (r.origem_primeira || 'Sem funil').trim() || 'Sem funil'
+    map.set(key, (map.get(key) ?? 0) + 1)
+  }
+  return Array.from(map, ([funil, total]) => ({ funil, total })).sort(
+    (a, b) => b.total - a.total,
+  )
+}
+
+export function statusByFunil(rows: Lead[]) {
+  const map = new Map<string, Record<StatusCategory, number>>()
+  for (const r of rows) {
+    const key = (r.origem_primeira || 'Sem funil').trim() || 'Sem funil'
+    const cur =
+      map.get(key) ??
+      ({ novo: 0, reentrada: 0, entrada: 0, parou: 0, outro: 0 } as Record<
+        StatusCategory,
+        number
+      >)
+    cur[categorizeStatus(r.status_entrada)]++
+    map.set(key, cur)
+  }
+  return Array.from(map, ([funil, c]) => ({
+    funil,
+    Novo: c.novo,
+    Entrada: c.entrada,
+    Reentrada: c.reentrada,
+    Parou: c.parou,
+    Outro: c.outro,
+    total: c.novo + c.entrada + c.reentrada + c.parou + c.outro,
+  })).sort((a, b) => b.total - a.total)
+}
+
+export function leadsBySegmento(rows: Lead[]) {
+  const map = new Map<string, number>()
+  for (const r of rows) {
+    const key = (r.segmento || 'Não informado').trim() || 'Não informado'
+    map.set(key, (map.get(key) ?? 0) + 1)
+  }
+  return Array.from(map, ([segmento, total]) => ({ segmento, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10)
+}
+
+export function leadsByCargo(rows: Lead[]) {
+  const map = new Map<string, number>()
+  for (const r of rows) {
+    const key = (r.cargo || 'Não informado').trim() || 'Não informado'
+    map.set(key, (map.get(key) ?? 0) + 1)
+  }
+  return Array.from(map, ([cargo, total]) => ({ cargo, total }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 10)
+}
+
+export function leadsByFaturamento(rows: Lead[]) {
+  const map = new Map<string, number>()
+  for (const r of rows) {
+    const key = (r.faturamento || 'Não informado').trim() || 'Não informado'
+    map.set(key, (map.get(key) ?? 0) + 1)
+  }
+  return Array.from(map, ([faturamento, total]) => ({ faturamento, total })).sort(
+    (a, b) => b.total - a.total,
+  )
+}
+
+export type DailyPoint = {
+  date: string
+  Novo: number
+  Entrada: number
+  Reentrada: number
+  Parou: number
+  total: number
+  taxa: number
+}
+
+export function dailySeries(rows: Lead[]): DailyPoint[] {
+  const map = new Map<string, DailyPoint>()
+  for (const r of rows) {
+    const d = safeDate(r.data_original)
+    if (!d) continue
+    const key = format(startOfDay(d), 'yyyy-MM-dd')
+    const cur =
+      map.get(key) ??
+      ({
+        date: key,
+        Novo: 0,
+        Entrada: 0,
+        Reentrada: 0,
+        Parou: 0,
+        total: 0,
+        taxa: 0,
+      } as DailyPoint)
+    const cat = categorizeStatus(r.status_entrada)
+    if (cat === 'novo') cur.Novo++
+    else if (cat === 'entrada') cur.Entrada++
+    else if (cat === 'reentrada') cur.Reentrada++
+    else if (cat === 'parou') cur.Parou++
+    cur.total++
+    map.set(key, cur)
+  }
+  const arr = Array.from(map.values()).sort((a, b) =>
+    a.date.localeCompare(b.date),
+  )
+  for (const p of arr) {
+    const cadastrados = p.Novo + p.Entrada + p.Reentrada
+    p.taxa = p.total ? cadastrados / p.total : 0
+  }
+  return arr
+}
+
+export type HeatmapCell = {
+  date: string
+  weekday: number
+  weekIndex: number
+  total: number
+}
+
+export function heatmapData(rows: Lead[]): HeatmapCell[] {
+  const series = dailySeries(rows)
+  if (!series.length) return []
+  const start = parseISO(series[0].date)
+  const end = parseISO(series[series.length - 1].date)
+  const days = eachDayOfInterval({ start, end })
+  const totalsByDate = new Map(series.map((p) => [p.date, p.total]))
+  return days.map((d, i) => ({
+    date: format(d, 'yyyy-MM-dd'),
+    weekday: getDay(d),
+    weekIndex: Math.floor(i / 7),
+    total: totalsByDate.get(format(d, 'yyyy-MM-dd')) ?? 0,
+  }))
+}
+
+export function distinctValues(rows: Lead[], key: keyof Lead): string[] {
+  const set = new Set<string>()
+  for (const r of rows) {
+    const v = (r[key] as unknown as string | null | undefined)
+    if (v == null) continue
+    const s = String(v).trim()
+    if (s) set.add(s)
+  }
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
