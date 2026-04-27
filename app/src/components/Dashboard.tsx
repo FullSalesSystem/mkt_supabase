@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   AlertTriangle,
   BarChart3,
@@ -8,8 +8,12 @@ import {
   Table2,
 } from 'lucide-react'
 import { useLeads } from '../hooks/useLeads'
+import { useFiltered } from '../hooks/useFiltered'
+import { initialFilters, type Filters } from '../types'
+import { distinctValues } from '../lib/aggregations'
 import { fmtNumber } from '../lib/utils'
 import { cn } from '../lib/utils'
+import { FiltersPanel } from './Filters'
 import { KpiCards } from './KpiCards'
 import { StatusByFunilChart } from './charts/StatusByFunilChart'
 import { StatusDonut } from './charts/StatusDonut'
@@ -24,7 +28,21 @@ type Tab = 'tabela' | 'graficos'
 export function Dashboard() {
   const { data, isLoading, isFetching, isError, error, refetch } = useLeads()
   const [tab, setTab] = useState<Tab>('tabela')
-  const rows = data ?? []
+  const [filters, setFilters] = useState<Filters>(initialFilters)
+  const filtered = useFiltered(data, filters)
+
+  const funilOptions = useMemo(
+    () => distinctValues(data ?? [], 'origem_primeira'),
+    [data],
+  )
+  const statusOptions = useMemo(
+    () => distinctValues(data ?? [], 'status_entrada'),
+    [data],
+  )
+  const segmentoOptions = useMemo(
+    () => distinctValues(data ?? [], 'segmento'),
+    [data],
+  )
 
   return (
     <div className="min-h-screen p-4 md:p-6 lg:p-8">
@@ -87,24 +105,31 @@ export function Dashboard() {
           Supabase...
         </div>
       ) : tab === 'tabela' ? (
-        <DataTable rows={rows} />
+        <DataTable rows={data ?? []} />
       ) : (
         <div className="space-y-4">
-          <KpiCards rows={rows} />
+          <KpiCards rows={filtered} />
+          <FiltersPanel
+            filters={filters}
+            onChange={setFilters}
+            funilOptions={funilOptions}
+            statusOptions={statusOptions}
+            segmentoOptions={segmentoOptions}
+          />
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <StatusByFunilChart rows={rows} />
-            <StatusDonut rows={rows} />
+            <StatusByFunilChart rows={filtered} />
+            <StatusDonut rows={filtered} />
           </div>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div className="lg:col-span-2">
-              <LeadsByFunilGrid rows={rows} />
+              <LeadsByFunilGrid rows={filtered} />
             </div>
-            <FunilRanking rows={rows} />
+            <FunilRanking rows={filtered} />
           </div>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <SegmentoChart rows={rows} />
-            <CargoChart rows={rows} />
-            <FaturamentoChart rows={rows} />
+            <SegmentoChart rows={filtered} />
+            <CargoChart rows={filtered} />
+            <FaturamentoChart rows={filtered} />
           </div>
         </div>
       )}

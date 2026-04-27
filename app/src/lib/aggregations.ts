@@ -192,3 +192,14 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
   return arr
 }
 
+export function distinctValues(rows: Lead[], key: keyof Lead): string[] {
+  const set = new Set<string>()
+  for (const r of rows) {
+    const v = r[key] as unknown as string | null | undefined
+    if (v == null) continue
+    const s = String(v).trim()
+    if (s) set.add(s)
+  }
+  return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+
