@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react'
 import {
   AlertTriangle,
+  BarChart3,
   CalendarDays,
   Loader2,
   RefreshCw,
+  Table2,
 } from 'lucide-react'
 import { useLeads } from '../hooks/useLeads'
 import { useVendas } from '../hooks/useVendas'
@@ -20,39 +22,36 @@ import { LeadsByFunilGrid } from './charts/LeadsByFunilGrid'
 import { SegmentoChart } from './charts/SegmentoChart'
 import { CargoChart, FaturamentoChart } from './charts/CargoFaturamento'
 import { DataTable } from './table/DataTable'
-import { Sidebar, type Tab } from './Sidebar'
+import { Sidebar, type Section } from './Sidebar'
+import { SubTabs, type SubTab } from './SubTabs'
 import { VendasCharts } from './vendas/VendasDashboard'
 import { VendasDataTable } from './vendas/table/VendasDataTable'
 
-const TAB_TITLES: Record<Tab, { title: string; subtitle: string }> = {
-  'leads-tabela': {
-    title: 'Tabela de Leads',
+const SECTION_INFO: Record<Section, { title: string; subtitle: string }> = {
+  leads: {
+    title: 'Leads',
     subtitle: 'Dashboard Full Sales System — análise dos leads',
   },
-  'leads-graficos': {
-    title: 'Visão Geral — Leads',
-    subtitle: 'Dashboard Full Sales System — análise dos leads',
-  },
-  'vendas-tabela': {
-    title: 'Tabela de Vendas',
-    subtitle: 'Dashboard Full Sales System — vendas Ticto',
-  },
-  'vendas-graficos': {
-    title: 'Visão Geral — Vendas',
+  vendas: {
+    title: 'Vendas',
     subtitle: 'Dashboard Full Sales System — vendas Ticto',
   },
 }
 
+const SUB_TAB_ITEMS = [
+  { id: 'tabela' as SubTab, label: 'Tabela', icon: <Table2 size={14} /> },
+  { id: 'graficos' as SubTab, label: 'Gráficos', icon: <BarChart3 size={14} /> },
+]
+
 export function Dashboard() {
-  const [tab, setTab] = useState<Tab>('leads-tabela')
+  const [section, setSection] = useState<Section>('leads')
+  const [subTab, setSubTab] = useState<SubTab>('tabela')
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [filters, setFilters] = useState<Filters>(initialFilters)
 
-  const isVendas = tab === 'vendas-tabela' || tab === 'vendas-graficos'
-
   const leadsQuery = useLeads()
   const vendasQuery = useVendas()
-  const active = isVendas ? vendasQuery : leadsQuery
+  const active = section === 'vendas' ? vendasQuery : leadsQuery
 
   const filtered = useFiltered(leadsQuery.data, filters)
 
@@ -69,16 +68,17 @@ export function Dashboard() {
     [leadsQuery.data],
   )
 
-  const titles = TAB_TITLES[tab]
-  const counterLabel = isVendas
-    ? `${fmtNumber(vendasQuery.data?.length ?? 0)} vendas carregadas`
-    : `${fmtNumber(leadsQuery.data?.length ?? 0)} leads carregados`
+  const info = SECTION_INFO[section]
+  const counterLabel =
+    section === 'vendas'
+      ? `${fmtNumber(vendasQuery.data?.length ?? 0)} vendas carregadas`
+      : `${fmtNumber(leadsQuery.data?.length ?? 0)} leads carregados`
 
   return (
     <div className="flex min-h-screen">
       <Sidebar
-        tab={tab}
-        onTab={setTab}
+        section={section}
+        onSection={setSection}
         expanded={sidebarExpanded}
         onToggle={() => setSidebarExpanded((s) => !s)}
       />
@@ -87,9 +87,9 @@ export function Dashboard() {
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-white tracking-tight">
-              {titles.title}
+              {info.title}
             </h1>
-            <p className="text-xs text-[var(--color-muted)]">{titles.subtitle}</p>
+            <p className="text-xs text-[var(--color-muted)]">{info.subtitle}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-panel)] px-3 py-1.5 text-xs text-[var(--color-muted)]">
@@ -110,6 +110,10 @@ export function Dashboard() {
           </div>
         </header>
 
+        <div className="mb-4">
+          <SubTabs value={subTab} onChange={setSubTab} items={SUB_TAB_ITEMS} />
+        </div>
+
         {active.isError && (
           <div className="mb-6 flex items-start gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-200">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
@@ -128,9 +132,9 @@ export function Dashboard() {
             <Loader2 size={16} className="animate-spin" /> Carregando dados do
             Supabase...
           </div>
-        ) : tab === 'leads-tabela' ? (
+        ) : section === 'leads' && subTab === 'tabela' ? (
           <DataTable rows={leadsQuery.data ?? []} />
-        ) : tab === 'leads-graficos' ? (
+        ) : section === 'leads' && subTab === 'graficos' ? (
           <div className="space-y-4">
             <KpiCards rows={filtered} />
             <FiltersPanel
@@ -156,7 +160,7 @@ export function Dashboard() {
               <FaturamentoChart rows={filtered} />
             </div>
           </div>
-        ) : tab === 'vendas-tabela' ? (
+        ) : section === 'vendas' && subTab === 'tabela' ? (
           <VendasDataTable rows={vendasQuery.data ?? []} />
         ) : (
           <VendasCharts rows={vendasQuery.data ?? []} />
