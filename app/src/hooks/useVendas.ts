@@ -12,7 +12,6 @@ async function fetchAllVendas(): Promise<Venda[]> {
     const { data, error } = await supabase
       .from(VENDAS_TABLE)
       .select('*')
-      .order('id', { ascending: true })
       .range(from, to)
     if (error) throw error
     if (!data || data.length === 0) break
