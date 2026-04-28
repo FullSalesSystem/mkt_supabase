@@ -3,9 +3,12 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Check,
   Download,
+  Minus,
   RotateCcw,
   Search,
+  Trash2,
 } from 'lucide-react'
 import type { Lead } from '../../types'
 import {
@@ -19,8 +22,10 @@ import { applyTable, distinctColumnValues } from './logic'
 import { ColumnFilter } from './ColumnFilter'
 import { ColumnsMenu } from './ColumnsMenu'
 import { Pagination } from './Pagination'
+import { ConfirmDelete } from './ConfirmDelete'
 import { COLUMN_LABELS, downloadCSV, toCSV } from '../../lib/csv'
 import { cn, fmtNumber } from '../../lib/utils'
+import { useDeleteLeads } from '../../hooks/useDeleteLeads'
 
 type Props = {
   rows: Lead[]
@@ -28,6 +33,8 @@ type Props = {
 
 export function DataTable({ rows }: Props) {
   const [state, setState] = useState<TableState>(initialTableState)
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const deleteMutation = useDeleteLeads()
 
   const filtered = useMemo(
     () => applyTable(rows, state.search, state.filters, state.sort),
@@ -83,6 +90,46 @@ export function DataTable({ rows }: Props) {
     downloadCSV(`leads-${stamp}.csv`, csv)
   }
 
+  // Selection
+  const selectedCount = state.selectedIds.size
+
+  const toggleRow = (id: string) =>
+    setState((s) => {
+      const next = new Set(s.selectedIds)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return { ...s, selectedIds: next }
+    })
+
+  const pageIds = slice.map((r) => String(r.id))
+  const pageSelectedCount = pageIds.filter((id) => state.selectedIds.has(id)).length
+  const pageAllSelected = pageIds.length > 0 && pageSelectedCount === pageIds.length
+  const pageSomeSelected = pageSelectedCount > 0 && !pageAllSelected
+
+  const togglePage = () =>
+    setState((s) => {
+      const next = new Set(s.selectedIds)
+      if (pageAllSelected) {
+        for (const id of pageIds) next.delete(id)
+      } else {
+        for (const id of pageIds) next.add(id)
+      }
+      return { ...s, selectedIds: next }
+    })
+
+  const clearSelection = () =>
+    setState((s) => ({ ...s, selectedIds: new Set() }))
+
+  const handleConfirmDelete = () => {
+    const ids = Array.from(state.selectedIds)
+    deleteMutation.mutate(ids, {
+      onSuccess: () => {
+        setState((s) => ({ ...s, selectedIds: new Set() }))
+        setConfirmOpen(false)
+      },
+    })
+  }
+
   return (
     <div className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-panel)]">
       {/* Toolbar */}
@@ -131,7 +178,8 @@ export function DataTable({ rows }: Props) {
           disabled={
             filterCount === 0 &&
             state.sort?.col === initialTableState.sort?.col &&
-            state.sort?.dir === initialTableState.sort?.dir
+            state.sort?.dir === initialTableState.sort?.dir &&
+            state.selectedIds.size === 0
           }
         >
           <RotateCcw size={12} />
@@ -139,11 +187,49 @@ export function DataTable({ rows }: Props) {
         </button>
       </div>
 
+      {/* Selection action bar */}
+      {selectedCount > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-rose-500/20 bg-rose-500/5 px-4 py-2">
+          <div className="text-xs text-rose-200">
+            <span className="font-medium tabular-nums">
+              {fmtNumber(selectedCount)}
+            </span>{' '}
+            {selectedCount === 1 ? 'lead selecionado' : 'leads selecionados'}
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              className="rounded-lg border border-[var(--color-border)] bg-[var(--color-panel-2)] px-3 py-1.5 text-xs text-white/80 hover:border-white/20"
+            >
+              Limpar seleção
+            </button>
+            <button
+              onClick={() => {
+                deleteMutation.reset()
+                setConfirmOpen(true)
+              }}
+              className="flex items-center gap-1.5 rounded-lg bg-rose-500/90 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-500"
+            >
+              <Trash2 size={12} />
+              Excluir selecionados
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="sticky top-0 z-10 bg-[var(--color-panel)]">
             <tr className="border-b border-[var(--color-border)]">
+              <th className="w-10 px-3 py-2 text-left">
+                <SelectionCheckbox
+                  checked={pageAllSelected}
+                  indeterminate={pageSomeSelected}
+                  onChange={togglePage}
+                  ariaLabel="Selecionar todas as linhas da página"
+                />
+              </th>
               {visibleCols.map((col) => {
                 const sorted = state.sort?.col === col.key
                 const dir = sorted ? state.sort?.dir : null
@@ -190,32 +276,46 @@ export function DataTable({ rows }: Props) {
             {slice.length === 0 && (
               <tr>
                 <td
-                  colSpan={visibleCols.length}
+                  colSpan={visibleCols.length + 1}
                   className="px-3 py-12 text-center text-sm text-[var(--color-muted)]"
                 >
                   Nenhuma linha corresponde aos filtros.
                 </td>
               </tr>
             )}
-            {slice.map((row, i) => (
-              <tr
-                key={String(row.id) + '-' + i}
-                className="border-b border-[var(--color-border)]/50 hover:bg-white/[0.02]"
-              >
-                {visibleCols.map((col) => (
-                  <td
-                    key={col.key}
-                    className={cn(
-                      'px-3 py-2 text-white/80',
-                      col.align === 'right' && 'text-right tabular-nums',
-                      col.align === 'center' && 'text-center',
-                    )}
-                  >
-                    <CellValue value={row[col.key]} colKey={col.key} />
+            {slice.map((row, i) => {
+              const id = String(row.id)
+              const checked = state.selectedIds.has(id)
+              return (
+                <tr
+                  key={id + '-' + i}
+                  className={cn(
+                    'border-b border-[var(--color-border)]/50 hover:bg-white/[0.02]',
+                    checked && 'bg-rose-500/5',
+                  )}
+                >
+                  <td className="w-10 px-3 py-2">
+                    <SelectionCheckbox
+                      checked={checked}
+                      onChange={() => toggleRow(id)}
+                      ariaLabel="Selecionar linha"
+                    />
                   </td>
-                ))}
-              </tr>
-            ))}
+                  {visibleCols.map((col) => (
+                    <td
+                      key={col.key}
+                      className={cn(
+                        'px-3 py-2 text-white/80',
+                        col.align === 'right' && 'text-right tabular-nums',
+                        col.align === 'center' && 'text-center',
+                      )}
+                    >
+                      <CellValue value={row[col.key]} colKey={col.key} />
+                    </td>
+                  ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>
@@ -227,7 +327,54 @@ export function DataTable({ rows }: Props) {
         onPage={(p) => setState((s) => ({ ...s, page: p }))}
         onPageSize={(ps) => setState((s) => ({ ...s, pageSize: ps, page: 1 }))}
       />
+
+      <ConfirmDelete
+        count={selectedCount}
+        open={confirmOpen}
+        onClose={() => !deleteMutation.isPending && setConfirmOpen(false)}
+        onConfirm={handleConfirmDelete}
+        loading={deleteMutation.isPending}
+        error={
+          deleteMutation.isError
+            ? (deleteMutation.error as Error)?.message ?? 'Falha ao excluir.'
+            : null
+        }
+      />
     </div>
+  )
+}
+
+function SelectionCheckbox({
+  checked,
+  indeterminate,
+  onChange,
+  ariaLabel,
+}: {
+  checked: boolean
+  indeterminate?: boolean
+  onChange: () => void
+  ariaLabel: string
+}) {
+  return (
+    <button
+      type="button"
+      role="checkbox"
+      aria-checked={indeterminate ? 'mixed' : checked}
+      aria-label={ariaLabel}
+      onClick={onChange}
+      className={cn(
+        'flex h-4 w-4 items-center justify-center rounded border transition-colors',
+        checked || indeterminate
+          ? 'border-emerald-500 bg-emerald-500 text-white'
+          : 'border-[var(--color-border)] bg-[var(--color-panel-2)] hover:border-white/30',
+      )}
+    >
+      {indeterminate ? (
+        <Minus size={10} strokeWidth={3} />
+      ) : checked ? (
+        <Check size={10} strokeWidth={3} />
+      ) : null}
+    </button>
   )
 }
 

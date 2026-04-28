@@ -33,6 +33,7 @@ export type TableState = {
   page: number
   pageSize: number
   visibleColumns: ColumnKey[]
+  selectedIds: Set<string>
 }
 
 export const COLUMNS: ColumnDef[] = [
@@ -66,4 +67,5 @@ export const initialTableState: TableState = {
   page: 1,
   pageSize: 50,
   visibleColumns: DEFAULT_VISIBLE,
+  selectedIds: new Set<string>(),
 }
