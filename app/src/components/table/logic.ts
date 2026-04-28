@@ -8,20 +8,30 @@ const stringify = (v: unknown): string => {
   return String(v)
 }
 
+const SEARCHABLE_KEYS: (keyof Lead)[] = [
+  'nome',
+  'email',
+  'telefone',
+  'cargo',
+  'segmento',
+  'faturamento',
+  'origem_primeira',
+  'origem_todas',
+  'status_entrada',
+  'utm_source',
+  'utm_medium',
+  'utm_campaign',
+  'utm_term',
+  'utm_content',
+]
+
 export function searchMatches(row: Lead, query: string): boolean {
   if (!query) return true
   const q = query.toLowerCase()
-  return (
-    stringify(row.nome).toLowerCase().includes(q) ||
-    stringify(row.email).toLowerCase().includes(q) ||
-    stringify(row.telefone).toLowerCase().includes(q) ||
-    stringify(row.cargo).toLowerCase().includes(q) ||
-    stringify(row.segmento).toLowerCase().includes(q) ||
-    stringify(row.faturamento).toLowerCase().includes(q) ||
-    stringify(row.origem_primeira).toLowerCase().includes(q) ||
-    stringify(row.origem_todas).toLowerCase().includes(q) ||
-    stringify(row.status_entrada).toLowerCase().includes(q)
-  )
+  for (const key of SEARCHABLE_KEYS) {
+    if (stringify(row[key]).toLowerCase().includes(q)) return true
+  }
+  return false
 }
 
 export function columnMatches(

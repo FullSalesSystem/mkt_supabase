@@ -12,7 +12,7 @@ async function fetchAllLeads(): Promise<Lead[]> {
     const { data, error } = await supabase
       .from(TABLE)
       .select(
-        'id, nome, email, telefone, cargo, segmento, faturamento, data_original, origem_primeira, origem_todas, status_entrada',
+        'id, nome, email, telefone, cargo, segmento, faturamento, data_original, origem_primeira, origem_todas, status_entrada, utm_source, utm_medium, utm_campaign, utm_term, utm_content',
       )
       .order('id', { ascending: true })
       .range(from, to)

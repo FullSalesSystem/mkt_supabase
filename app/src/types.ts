@@ -10,6 +10,11 @@ export type Lead = {
   origem_primeira: string | null
   origem_todas: string[] | string | null
   status_entrada: string | null
+  utm_source: string | null
+  utm_medium: string | null
+  utm_campaign: string | null
+  utm_term: string | null
+  utm_content: string | null
 }
 
 export type PeriodPreset =

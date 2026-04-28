@@ -46,10 +46,17 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'origem_primeira', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
   { key: 'origem_todas', label: 'Origens', filterKind: 'text', width: '16rem' },
   { key: 'status_entrada', label: 'Status', filterKind: 'multi', width: '8rem' },
+  { key: 'utm_source', label: 'utm_source', filterKind: 'multi', width: '10rem' },
+  { key: 'utm_medium', label: 'utm_medium', filterKind: 'multi', width: '10rem' },
+  { key: 'utm_campaign', label: 'utm_campaign', filterKind: 'multi', width: '12rem' },
+  { key: 'utm_term', label: 'utm_term', filterKind: 'text', width: '10rem' },
+  { key: 'utm_content', label: 'utm_content', filterKind: 'text', width: '10rem' },
 ]
 
+const HIDDEN_BY_DEFAULT: ColumnKey[] = ['origem_todas', 'utm_term', 'utm_content']
+
 export const DEFAULT_VISIBLE: ColumnKey[] = COLUMNS.filter(
-  (c) => c.key !== 'origem_todas',
+  (c) => !HIDDEN_BY_DEFAULT.includes(c.key),
 ).map((c) => c.key)
 
 export const initialTableState: TableState = {
