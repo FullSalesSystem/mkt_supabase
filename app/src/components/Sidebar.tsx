@@ -9,7 +9,6 @@ type Props = {
   onTab: (t: Tab) => void
   expanded: boolean
   onToggle: () => void
-  userEmail: string | null
   onSignOut: () => void
 }
 
@@ -18,14 +17,7 @@ const NAV: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'graficos', label: 'Gráficos', icon: <BarChart3 size={18} /> },
 ]
 
-export function Sidebar({
-  tab,
-  onTab,
-  expanded,
-  onToggle,
-  userEmail,
-  onSignOut,
-}: Props) {
+export function Sidebar({ tab, onTab, expanded, onToggle, onSignOut }: Props) {
   return (
     <aside
       className={cn(
@@ -76,14 +68,6 @@ export function Sidebar({
       </nav>
 
       <div className="border-t border-[var(--color-border)] p-2">
-        {expanded && userEmail && (
-          <div
-            className="mb-2 px-2 py-1 text-[11px] text-[var(--color-muted)] truncate"
-            title={userEmail}
-          >
-            {userEmail.split('@')[0]}
-          </div>
-        )}
         <button
           type="button"
           onClick={onSignOut}

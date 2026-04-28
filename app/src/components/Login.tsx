@@ -1,17 +1,11 @@
 import { useState, type FormEvent } from 'react'
-import { Loader2, Lock, User } from 'lucide-react'
+import { Loader2, Lock } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
-const USERNAME_DOMAIN = '@fullsalessystem.com'
-
-function toEmail(input: string) {
-  const v = input.trim()
-  return v.includes('@') ? v : `${v}${USERNAME_DOMAIN}`
-}
+const ADMIN_EMAIL = 'admin@fullsalessystem.com'
 
 export function Login() {
   const { signIn } = useAuth()
-  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -20,12 +14,12 @@ export function Login() {
     e.preventDefault()
     setLoading(true)
     setError(null)
-    const { error } = await signIn(toEmail(username), password)
+    const { error } = await signIn(ADMIN_EMAIL, password)
     setLoading(false)
     if (error) {
       setError(
         error.message === 'Invalid login credentials'
-          ? 'Usuário ou senha incorretos.'
+          ? 'Senha incorreta.'
           : error.message,
       )
     }
@@ -50,31 +44,10 @@ export function Login() {
           onSubmit={onSubmit}
           className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-panel)] p-6"
         >
-          <h2 className="mb-1 text-sm font-medium text-white">Entrar</h2>
+          <h2 className="mb-1 text-sm font-medium text-white">Acesso</h2>
           <p className="mb-5 text-xs text-[var(--color-muted)]">
-            Acesse com sua conta da equipe.
+            Digite a senha do time para entrar.
           </p>
-
-          <label className="mb-3 block">
-            <span className="mb-1 block text-xs text-[var(--color-muted)]">
-              Usuário
-            </span>
-            <div className="relative">
-              <User
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]"
-              />
-              <input
-                type="text"
-                required
-                autoComplete="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-panel-2)] py-2 pl-9 pr-3 text-sm outline-none focus:border-white/20"
-                placeholder="admin"
-              />
-            </div>
-          </label>
 
           <label className="mb-4 block">
             <span className="mb-1 block text-xs text-[var(--color-muted)]">
@@ -86,6 +59,7 @@ export function Login() {
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]"
               />
               <input
+                autoFocus
                 type="password"
                 required
                 autoComplete="current-password"
@@ -114,7 +88,7 @@ export function Login() {
         </form>
 
         <p className="mt-4 text-center text-[10px] text-[var(--color-muted)]">
-          Acesso restrito. Solicite credenciais ao administrador.
+          Acesso restrito da equipe.
         </p>
       </div>
     </div>

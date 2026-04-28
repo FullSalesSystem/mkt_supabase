@@ -24,7 +24,7 @@ import { useAuth } from '../hooks/useAuth'
 
 export function Dashboard() {
   const { data, isLoading, isFetching, isError, error, refetch } = useLeads()
-  const { user, signOut } = useAuth()
+  const { signOut } = useAuth()
   const [tab, setTab] = useState<Tab>('tabela')
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [filters, setFilters] = useState<Filters>(initialFilters)
@@ -52,7 +52,6 @@ export function Dashboard() {
         onTab={setTab}
         expanded={sidebarExpanded}
         onToggle={() => setSidebarExpanded((s) => !s)}
-        userEmail={user?.email ?? null}
         onSignOut={() => signOut()}
       />
 
