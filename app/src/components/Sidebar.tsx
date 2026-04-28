@@ -77,8 +77,11 @@ export function Sidebar({
 
       <div className="border-t border-[var(--color-border)] p-2">
         {expanded && userEmail && (
-          <div className="mb-2 px-2 py-1 text-[11px] text-[var(--color-muted)] truncate" title={userEmail}>
-            {userEmail}
+          <div
+            className="mb-2 px-2 py-1 text-[11px] text-[var(--color-muted)] truncate"
+            title={userEmail}
+          >
+            {userEmail.split('@')[0]}
           </div>
         )}
         <button
