@@ -20,11 +20,9 @@ import { SegmentoChart } from './charts/SegmentoChart'
 import { CargoChart, FaturamentoChart } from './charts/CargoFaturamento'
 import { DataTable } from './table/DataTable'
 import { Sidebar, type Tab } from './Sidebar'
-import { useAuth } from '../hooks/useAuth'
 
 export function Dashboard() {
   const { data, isLoading, isFetching, isError, error, refetch } = useLeads()
-  const { signOut } = useAuth()
   const [tab, setTab] = useState<Tab>('tabela')
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [filters, setFilters] = useState<Filters>(initialFilters)
@@ -52,7 +50,6 @@ export function Dashboard() {
         onTab={setTab}
         expanded={sidebarExpanded}
         onToggle={() => setSidebarExpanded((s) => !s)}
-        onSignOut={() => signOut()}
       />
 
       <main className="flex-1 min-w-0 p-4 md:p-6 lg:p-8">

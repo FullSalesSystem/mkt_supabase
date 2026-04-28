@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { BarChart3, LogOut, Menu, Table2 } from 'lucide-react'
+import { BarChart3, Menu, Table2 } from 'lucide-react'
 import { cn } from '../lib/utils'
 
 export type Tab = 'tabela' | 'graficos'
@@ -9,7 +9,6 @@ type Props = {
   onTab: (t: Tab) => void
   expanded: boolean
   onToggle: () => void
-  onSignOut: () => void
 }
 
 const NAV: { id: Tab; label: string; icon: ReactNode }[] = [
@@ -17,7 +16,7 @@ const NAV: { id: Tab; label: string; icon: ReactNode }[] = [
   { id: 'graficos', label: 'Gráficos', icon: <BarChart3 size={18} /> },
 ]
 
-export function Sidebar({ tab, onTab, expanded, onToggle, onSignOut }: Props) {
+export function Sidebar({ tab, onTab, expanded, onToggle }: Props) {
   return (
     <aside
       className={cn(
@@ -67,19 +66,18 @@ export function Sidebar({ tab, onTab, expanded, onToggle, onSignOut }: Props) {
         })}
       </nav>
 
-      <div className="border-t border-[var(--color-border)] p-2">
-        <button
-          type="button"
-          onClick={onSignOut}
-          title={!expanded ? 'Sair' : undefined}
+      <div className="border-t border-[var(--color-border)] p-3">
+        <div
           className={cn(
-            'flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-[var(--color-muted)] hover:bg-white/5 hover:text-white transition-colors',
-            !expanded && 'justify-center px-0',
+            'flex items-center gap-2 text-[10px] uppercase tracking-wider text-[var(--color-muted)]',
+            !expanded && 'justify-center',
           )}
         >
-          <LogOut size={16} />
-          {expanded && <span>Sair</span>}
-        </button>
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-gradient-to-br from-emerald-500 to-sky-500 text-[10px] font-bold text-white">
+            FS
+          </div>
+          {expanded && <span>Full Sales</span>}
+        </div>
       </div>
     </aside>
   )
