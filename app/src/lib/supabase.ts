@@ -10,7 +10,11 @@ if (!url || !anonKey) {
 }
 
 export const supabase = createClient(url, anonKey, {
-  auth: { persistSession: false },
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
 })
 
 export const TABLE = import.meta.env.VITE_SUPABASE_TABLE || '[Leads] Geral'
