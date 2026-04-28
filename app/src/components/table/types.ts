@@ -36,7 +36,6 @@ export type TableState = {
 }
 
 export const COLUMNS: ColumnDef[] = [
-  { key: 'id', label: 'ID', filterKind: 'numberRange', align: 'right', width: '5rem' },
   { key: 'nome', label: 'Nome', filterKind: 'text', width: '14rem' },
   { key: 'email', label: 'E-mail', filterKind: 'text', width: '14rem' },
   { key: 'telefone', label: 'Telefone', filterKind: 'text', width: '10rem' },
