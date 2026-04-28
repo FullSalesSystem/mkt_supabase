@@ -6,6 +6,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { useLeads } from '../hooks/useLeads'
+import { useVendas } from '../hooks/useVendas'
 import { useFiltered } from '../hooks/useFiltered'
 import { initialFilters, type Filters } from '../types'
 import { distinctValues } from '../lib/aggregations'
@@ -20,28 +21,58 @@ import { SegmentoChart } from './charts/SegmentoChart'
 import { CargoChart, FaturamentoChart } from './charts/CargoFaturamento'
 import { DataTable } from './table/DataTable'
 import { Sidebar, type Tab } from './Sidebar'
+import { VendasCharts } from './vendas/VendasDashboard'
+import { VendasDataTable } from './vendas/table/VendasDataTable'
+
+const TAB_TITLES: Record<Tab, { title: string; subtitle: string }> = {
+  'leads-tabela': {
+    title: 'Tabela de Leads',
+    subtitle: 'Dashboard Full Sales System — análise dos leads',
+  },
+  'leads-graficos': {
+    title: 'Visão Geral — Leads',
+    subtitle: 'Dashboard Full Sales System — análise dos leads',
+  },
+  'vendas-tabela': {
+    title: 'Tabela de Vendas',
+    subtitle: 'Dashboard Full Sales System — vendas Ticto',
+  },
+  'vendas-graficos': {
+    title: 'Visão Geral — Vendas',
+    subtitle: 'Dashboard Full Sales System — vendas Ticto',
+  },
+}
 
 export function Dashboard() {
-  const { data, isLoading, isFetching, isError, error, refetch } = useLeads()
-  const [tab, setTab] = useState<Tab>('tabela')
+  const [tab, setTab] = useState<Tab>('leads-tabela')
   const [sidebarExpanded, setSidebarExpanded] = useState(false)
   const [filters, setFilters] = useState<Filters>(initialFilters)
-  const filtered = useFiltered(data, filters)
+
+  const isVendas = tab === 'vendas-tabela' || tab === 'vendas-graficos'
+
+  const leadsQuery = useLeads()
+  const vendasQuery = useVendas()
+  const active = isVendas ? vendasQuery : leadsQuery
+
+  const filtered = useFiltered(leadsQuery.data, filters)
 
   const funilOptions = useMemo(
-    () => distinctValues(data ?? [], 'origem_primeira'),
-    [data],
+    () => distinctValues(leadsQuery.data ?? [], 'origem_primeira'),
+    [leadsQuery.data],
   )
   const statusOptions = useMemo(
-    () => distinctValues(data ?? [], 'status_entrada'),
-    [data],
+    () => distinctValues(leadsQuery.data ?? [], 'status_entrada'),
+    [leadsQuery.data],
   )
   const segmentoOptions = useMemo(
-    () => distinctValues(data ?? [], 'segmento'),
-    [data],
+    () => distinctValues(leadsQuery.data ?? [], 'segmento'),
+    [leadsQuery.data],
   )
 
-  const tabTitle = tab === 'tabela' ? 'Tabela de Leads' : 'Visão Geral'
+  const titles = TAB_TITLES[tab]
+  const counterLabel = isVendas
+    ? `${fmtNumber(vendasQuery.data?.length ?? 0)} vendas carregadas`
+    : `${fmtNumber(leadsQuery.data?.length ?? 0)} leads carregados`
 
   return (
     <div className="flex min-h-screen">
@@ -56,54 +87,50 @@ export function Dashboard() {
         <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-white tracking-tight">
-              {tabTitle}
+              {titles.title}
             </h1>
-            <p className="text-xs text-[var(--color-muted)]">
-              Dashboard Full Sales System — análise dos leads
-            </p>
+            <p className="text-xs text-[var(--color-muted)]">{titles.subtitle}</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-panel)] px-3 py-1.5 text-xs text-[var(--color-muted)]">
               <CalendarDays size={14} />
-              {data
-                ? `${fmtNumber(data.length)} leads carregados`
-                : 'Carregando...'}
+              {active.data ? counterLabel : 'Carregando...'}
             </div>
             <button
-              onClick={() => refetch()}
-              disabled={isFetching}
+              onClick={() => active.refetch()}
+              disabled={active.isFetching}
               className="flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-panel)] px-3 py-1.5 text-xs text-white/80 hover:border-white/20 disabled:opacity-50"
             >
               <RefreshCw
                 size={14}
-                className={isFetching ? 'animate-spin' : ''}
+                className={active.isFetching ? 'animate-spin' : ''}
               />
               Atualizar
             </button>
           </div>
         </header>
 
-        {isError && (
+        {active.isError && (
           <div className="mb-6 flex items-start gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-200">
             <AlertTriangle size={16} className="mt-0.5 shrink-0" />
             <div>
               <div className="font-medium">Erro ao carregar dados</div>
               <div className="text-xs opacity-80 mt-1">
-                {(error as Error)?.message ??
+                {(active.error as Error)?.message ??
                   'Verifique credenciais e RLS no Supabase.'}
               </div>
             </div>
           </div>
         )}
 
-        {isLoading ? (
+        {active.isLoading ? (
           <div className="flex items-center gap-2 text-sm text-[var(--color-muted)]">
             <Loader2 size={16} className="animate-spin" /> Carregando dados do
             Supabase...
           </div>
-        ) : tab === 'tabela' ? (
-          <DataTable rows={data ?? []} />
-        ) : (
+        ) : tab === 'leads-tabela' ? (
+          <DataTable rows={leadsQuery.data ?? []} />
+        ) : tab === 'leads-graficos' ? (
           <div className="space-y-4">
             <KpiCards rows={filtered} />
             <FiltersPanel
@@ -129,6 +156,10 @@ export function Dashboard() {
               <FaturamentoChart rows={filtered} />
             </div>
           </div>
+        ) : tab === 'vendas-tabela' ? (
+          <VendasDataTable rows={vendasQuery.data ?? []} />
+        ) : (
+          <VendasCharts rows={vendasQuery.data ?? []} />
         )}
       </main>
     </div>

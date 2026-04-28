@@ -14,3 +14,5 @@ export const supabase = createClient(url, anonKey, {
 })
 
 export const TABLE = import.meta.env.VITE_SUPABASE_TABLE || '[Leads] Geral'
+export const VENDAS_TABLE =
+  import.meta.env.VITE_SUPABASE_VENDAS_TABLE || '[Compradores] [Ticto] Vendas'
