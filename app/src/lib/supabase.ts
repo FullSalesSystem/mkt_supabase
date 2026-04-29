@@ -13,6 +13,6 @@ export const supabase = createClient(url, anonKey, {
   auth: { persistSession: false },
 })
 
-export const TABLE = import.meta.env.VITE_SUPABASE_TABLE || '[Leads] Geral'
+export const TABLE = import.meta.env.VITE_SUPABASE_TABLE || 'teste_2'
 export const VENDAS_TABLE =
   import.meta.env.VITE_SUPABASE_VENDAS_TABLE || '[Compradores] [Ticto] Vendas'

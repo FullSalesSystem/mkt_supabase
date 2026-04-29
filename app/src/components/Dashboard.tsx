@@ -56,11 +56,11 @@ export function Dashboard() {
   const filtered = useFiltered(leadsQuery.data, filters)
 
   const funilOptions = useMemo(
-    () => distinctValues(leadsQuery.data ?? [], 'origem_primeira'),
+    () => distinctValues(leadsQuery.data ?? [], 'origem'),
     [leadsQuery.data],
   )
   const statusOptions = useMemo(
-    () => distinctValues(leadsQuery.data ?? [], 'status_entrada'),
+    () => distinctValues(leadsQuery.data ?? [], 'status'),
     [leadsQuery.data],
   )
   const segmentoOptions = useMemo(

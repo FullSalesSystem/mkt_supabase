@@ -43,10 +43,12 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'cargo', label: 'Cargo', filterKind: 'multi', width: '10rem' },
   { key: 'segmento', label: 'Segmento', filterKind: 'multi', width: '10rem' },
   { key: 'faturamento', label: 'Faturamento', filterKind: 'multi', width: '10rem' },
-  { key: 'data_original', label: 'Data', filterKind: 'dateRange', width: '7rem' },
-  { key: 'origem_primeira', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
-  { key: 'origem_todas', label: 'Origens', filterKind: 'text', width: '16rem' },
-  { key: 'status_entrada', label: 'Status', filterKind: 'multi', width: '8rem' },
+  { key: 'data', label: 'Data', filterKind: 'dateRange', width: '7rem' },
+  { key: 'origem', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
+  { key: 'origens', label: 'Origens', filterKind: 'text', width: '16rem' },
+  { key: 'status', label: 'Status', filterKind: 'multi', width: '8rem' },
+  { key: 'source', label: 'Source', filterKind: 'multi', width: '10rem' },
+  { key: 'url', label: 'URL', filterKind: 'text', width: '16rem' },
   { key: 'utm_source', label: 'utm_source', filterKind: 'multi', width: '10rem' },
   { key: 'utm_medium', label: 'utm_medium', filterKind: 'multi', width: '10rem' },
   { key: 'utm_campaign', label: 'utm_campaign', filterKind: 'multi', width: '12rem' },
@@ -54,14 +56,19 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'utm_content', label: 'utm_content', filterKind: 'text', width: '10rem' },
 ]
 
-const HIDDEN_BY_DEFAULT: ColumnKey[] = ['origem_todas', 'utm_term', 'utm_content']
+const HIDDEN_BY_DEFAULT: ColumnKey[] = [
+  'origens',
+  'url',
+  'utm_term',
+  'utm_content',
+]
 
 export const DEFAULT_VISIBLE: ColumnKey[] = COLUMNS.filter(
   (c) => !HIDDEN_BY_DEFAULT.includes(c.key),
 ).map((c) => c.key)
 
 export const initialTableState: TableState = {
-  sort: { col: 'data_original', dir: 'desc' },
+  sort: { col: 'data', dir: 'desc' },
   search: '',
   filters: {},
   page: 1,

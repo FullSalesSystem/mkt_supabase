@@ -17,11 +17,8 @@ const SEARCHABLE_KEYS: (keyof Venda)[] = [
   'nome',
   'email',
   'telefone',
-  'documento',
   'produto',
   'oferta',
-  'status',
-  'forma_pagamento',
   'utm_source',
   'utm_medium',
   'utm_campaign',
@@ -36,7 +33,7 @@ const NUMERIC_KEYS: VendaColumnKey[] = [
   'parcelas',
 ]
 
-const DATE_KEYS: VendaColumnKey[] = ['data_venda', 'data_pagamento']
+const DATE_KEYS: VendaColumnKey[] = ['data', 'data_venda', 'data_pagamento']
 
 export function searchMatches(row: Venda, query: string): boolean {
   if (!query) return true

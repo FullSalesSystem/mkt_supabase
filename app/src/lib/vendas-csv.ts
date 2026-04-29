@@ -5,22 +5,23 @@ export const VENDA_COLUMN_LABELS: Record<keyof Venda, string> = {
   nome: 'Comprador',
   email: 'E-mail',
   telefone: 'Telefone',
-  documento: 'Documento',
   produto: 'Produto',
   oferta: 'Oferta',
-  status: 'Status',
-  forma_pagamento: 'Pagamento',
-  parcelas: 'Parcelas',
   valor: 'Valor',
   valor_liquido: 'Valor Líquido',
-  comissao: 'Comissão',
-  data_venda: 'Data Venda',
-  data_pagamento: 'Data Pagamento',
+  data: 'Data',
   utm_source: 'utm_source',
   utm_medium: 'utm_medium',
   utm_campaign: 'utm_campaign',
   utm_term: 'utm_term',
   utm_content: 'utm_content',
+  status: 'Status',
+  forma_pagamento: 'Pagamento',
+  documento: 'Documento',
+  parcelas: 'Parcelas',
+  comissao: 'Comissão',
+  data_venda: 'Data Venda',
+  data_pagamento: 'Data Pagamento',
 }
 
 export function toVendasCSV(rows: Venda[], columns: (keyof Venda)[]): string {
@@ -40,7 +41,7 @@ export function toVendasCSV(rows: Venda[], columns: (keyof Venda)[]): string {
 }
 
 export function downloadVendasCSV(filename: string, csv: string) {
-  const blob = new Blob([`\uFEFF${csv}`], { type: 'text/csv;charset=utf-8' })
+  const blob = new Blob([`﻿${csv}`], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url

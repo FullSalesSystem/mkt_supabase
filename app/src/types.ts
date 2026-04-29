@@ -6,38 +6,42 @@ export type Lead = {
   cargo: string | null
   segmento: string | null
   faturamento: string | null
-  data_original: string | null
-  origem_primeira: string | null
-  origem_todas: string[] | string | null
-  status_entrada: string | null
   utm_source: string | null
   utm_medium: string | null
   utm_campaign: string | null
-  utm_term: string | null
   utm_content: string | null
+  utm_term: string | null
+  url: string | null
+  data: string | null
+  data_normalizada: string | null
+  source: string | null
+  origem: string | null
+  origens: string[] | string | null
+  status: string | null
 }
 
 export type Venda = {
-  id: number | string
+  id?: number | string | null
   nome: string | null
   email: string | null
   telefone: string | null
-  documento: string | null
-  produto: string | null
-  oferta: string | null
-  status: string | null
-  forma_pagamento: string | null
-  parcelas: number | string | null
-  valor: number | string | null
-  valor_liquido: number | string | null
-  comissao: number | string | null
-  data_venda: string | null
-  data_pagamento: string | null
   utm_source: string | null
   utm_medium: string | null
   utm_campaign: string | null
   utm_term: string | null
   utm_content: string | null
+  produto: string | null
+  oferta: string | null
+  valor: number | string | null
+  valor_liquido: number | string | null
+  data: string | null
+  status?: string | null
+  forma_pagamento?: string | null
+  documento?: string | null
+  parcelas?: number | string | null
+  comissao?: number | string | null
+  data_venda?: string | null
+  data_pagamento?: string | null
 }
 
 export type PeriodPreset =

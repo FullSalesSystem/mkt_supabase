@@ -392,7 +392,7 @@ function CellValue({
   if (Array.isArray(value)) display = value.join(', ')
   else display = String(value)
 
-  if (colKey === 'status_entrada') {
+  if (colKey === 'status') {
     const s = display.toLowerCase()
     const tone =
       s.includes('reentrada')

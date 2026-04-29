@@ -41,24 +41,8 @@ export const VENDA_COLUMNS: VendaColumnDef[] = [
   { key: 'nome', label: 'Comprador', filterKind: 'text', width: '14rem' },
   { key: 'email', label: 'E-mail', filterKind: 'text', width: '14rem' },
   { key: 'telefone', label: 'Telefone', filterKind: 'text', width: '10rem' },
-  { key: 'documento', label: 'Documento', filterKind: 'text', width: '10rem' },
   { key: 'produto', label: 'Produto', filterKind: 'multi', width: '14rem' },
   { key: 'oferta', label: 'Oferta', filterKind: 'multi', width: '12rem' },
-  { key: 'status', label: 'Status', filterKind: 'multi', width: '8rem' },
-  {
-    key: 'forma_pagamento',
-    label: 'Pagamento',
-    filterKind: 'multi',
-    width: '9rem',
-  },
-  {
-    key: 'parcelas',
-    label: 'Parcelas',
-    filterKind: 'numberRange',
-    width: '6rem',
-    align: 'right',
-    format: 'number',
-  },
   {
     key: 'valor',
     label: 'Valor',
@@ -75,26 +59,7 @@ export const VENDA_COLUMNS: VendaColumnDef[] = [
     align: 'right',
     format: 'money',
   },
-  {
-    key: 'comissao',
-    label: 'Comissão',
-    filterKind: 'numberRange',
-    width: '8rem',
-    align: 'right',
-    format: 'money',
-  },
-  {
-    key: 'data_venda',
-    label: 'Data Venda',
-    filterKind: 'dateRange',
-    width: '7rem',
-  },
-  {
-    key: 'data_pagamento',
-    label: 'Data Pagamento',
-    filterKind: 'dateRange',
-    width: '7rem',
-  },
+  { key: 'data', label: 'Data', filterKind: 'dateRange', width: '7rem' },
   { key: 'utm_source', label: 'utm_source', filterKind: 'multi', width: '10rem' },
   { key: 'utm_medium', label: 'utm_medium', filterKind: 'multi', width: '10rem' },
   {
@@ -108,9 +73,7 @@ export const VENDA_COLUMNS: VendaColumnDef[] = [
 ]
 
 const HIDDEN_BY_DEFAULT: VendaColumnKey[] = [
-  'documento',
   'valor_liquido',
-  'comissao',
   'utm_term',
   'utm_content',
 ]
@@ -120,7 +83,7 @@ export const VENDA_DEFAULT_VISIBLE: VendaColumnKey[] = VENDA_COLUMNS.filter(
 ).map((c) => c.key)
 
 export const initialVendasTableState: VendasTableState = {
-  sort: { col: 'data_venda', dir: 'desc' },
+  sort: { col: 'data', dir: 'desc' },
   search: '',
   filters: {},
   page: 1,

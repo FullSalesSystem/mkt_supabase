@@ -39,7 +39,7 @@ export function categorizeVendaStatus(
   status: string | null | undefined,
 ): VendaStatus {
   const s = norm(status)
-  if (!s) return 'outro'
+  if (!s) return 'aprovada'
   if (REEMBOLSO_TOKENS.some((t) => s.includes(t))) return 'reembolso'
   if (CANCELADA_TOKENS.some((t) => s.includes(t))) return 'cancelada'
   if (APROVADA_TOKENS.some((t) => s.includes(t))) return 'aprovada'
@@ -69,7 +69,11 @@ export function toNumber(v: unknown): number {
 }
 
 export function vendaDate(r: Venda): Date | null {
-  return safeDate(r.data_pagamento) ?? safeDate(r.data_venda)
+  return (
+    safeDate(r.data_pagamento) ??
+    safeDate(r.data_venda) ??
+    safeDate(r.data)
+  )
 }
 
 export function totalVendas(rows: Venda[]) {

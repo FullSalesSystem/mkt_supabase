@@ -66,7 +66,7 @@ export function countByStatus(rows: Lead[]) {
     parou: 0,
     outro: 0,
   }
-  for (const r of rows) counts[categorizeStatus(r.status_entrada)]++
+  for (const r of rows) counts[categorizeStatus(r.status)]++
   return counts
 }
 
@@ -81,7 +81,7 @@ export function taxaCadastro(rows: Lead[]) {
 export function leadsByFunil(rows: Lead[]) {
   const map = new Map<string, number>()
   for (const r of rows) {
-    const key = (r.origem_primeira || 'Sem funil').trim() || 'Sem funil'
+    const key = (r.origem || 'Sem funil').trim() || 'Sem funil'
     map.set(key, (map.get(key) ?? 0) + 1)
   }
   return Array.from(map, ([funil, total]) => ({ funil, total })).sort(
@@ -92,14 +92,14 @@ export function leadsByFunil(rows: Lead[]) {
 export function statusByFunil(rows: Lead[]) {
   const map = new Map<string, Record<StatusCategory, number>>()
   for (const r of rows) {
-    const key = (r.origem_primeira || 'Sem funil').trim() || 'Sem funil'
+    const key = (r.origem || 'Sem funil').trim() || 'Sem funil'
     const cur =
       map.get(key) ??
       ({ novo: 0, reentrada: 0, entrada: 0, parou: 0, outro: 0 } as Record<
         StatusCategory,
         number
       >)
-    cur[categorizeStatus(r.status_entrada)]++
+    cur[categorizeStatus(r.status)]++
     map.set(key, cur)
   }
   return Array.from(map, ([funil, c]) => ({
@@ -159,7 +159,7 @@ export type DailyPoint = {
 export function dailySeries(rows: Lead[]): DailyPoint[] {
   const map = new Map<string, DailyPoint>()
   for (const r of rows) {
-    const d = safeDate(r.data_original)
+    const d = safeDate(r.data_normalizada) ?? safeDate(r.data)
     if (!d) continue
     const key = format(startOfDay(d), 'yyyy-MM-dd')
     const cur =
@@ -173,7 +173,7 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
         total: 0,
         taxa: 0,
       } as DailyPoint)
-    const cat = categorizeStatus(r.status_entrada)
+    const cat = categorizeStatus(r.status)
     if (cat === 'novo') cur.Novo++
     else if (cat === 'entrada') cur.Entrada++
     else if (cat === 'reentrada') cur.Reentrada++

@@ -26,14 +26,14 @@ export function useFiltered(rows: Lead[] | undefined, filters: Filters): Lead[] 
 
     return rows.filter((r) => {
       if (start || end) {
-        const d = safeDate(r.data_original)
+        const d = safeDate(r.data_normalizada) ?? safeDate(r.data)
         if (!d) return false
         if (start && d < start) return false
         if (end && d > end) return false
       }
-      if (funilSet.size && !funilSet.has((r.origem_primeira ?? '').trim()))
+      if (funilSet.size && !funilSet.has((r.origem ?? '').trim()))
         return false
-      if (statusSet.size && !statusSet.has((r.status_entrada ?? '').trim()))
+      if (statusSet.size && !statusSet.has((r.status ?? '').trim()))
         return false
       if (segSet.size && !segSet.has((r.segmento ?? '').trim())) return false
       return true
