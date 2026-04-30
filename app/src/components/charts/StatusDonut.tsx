@@ -14,14 +14,20 @@ import { fmtNumber } from '../../lib/utils'
 
 const COLORS: Record<string, string> = {
   Novo: '#22c55e',
+  Entrada: '#10b981',
   Reentrada: '#3b82f6',
+  Parou: '#f43f5e',
+  Outro: '#a78bfa',
 }
 
 export function StatusDonut({ rows }: { rows: Lead[] }) {
   const c = countByStatus(rows)
   const data = [
     { name: 'Novo', value: c.novo },
+    { name: 'Entrada', value: c.entrada },
     { name: 'Reentrada', value: c.reentrada },
+    { name: 'Parou', value: c.parou },
+    { name: 'Outro', value: c.outro },
   ].filter((d) => d.value > 0)
 
   return (
