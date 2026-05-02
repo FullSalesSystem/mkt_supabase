@@ -15,10 +15,9 @@ const SEARCHABLE_KEYS: (keyof Lead)[] = [
   'cargo',
   'segmento',
   'faturamento',
-  'origem',
-  'origens',
-  'status',
-  'source',
+  'origem_primeira',
+  'origem_total',
+  'status_entrada',
   'url',
   'utm_source',
   'utm_medium',
@@ -81,15 +80,9 @@ export function compareValues(
   const rb = b[key]
   let cmp = 0
 
-  if (key === 'data' || key === 'data_normalizada') {
-    const da =
-      safeDate(stringify(a.data_normalizada))?.getTime() ??
-      safeDate(stringify(a.data))?.getTime() ??
-      0
-    const db =
-      safeDate(stringify(b.data_normalizada))?.getTime() ??
-      safeDate(stringify(b.data))?.getTime() ??
-      0
+  if (key === 'data') {
+    const da = safeDate(stringify(a.data))?.getTime() ?? 0
+    const db = safeDate(stringify(b.data))?.getTime() ?? 0
     cmp = da - db
   } else if (key === 'id') {
     cmp = Number(ra ?? 0) - Number(rb ?? 0)
