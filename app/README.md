@@ -31,7 +31,7 @@ A aplicação espera as variáveis:
 | ------------------------------ | -------------------------------------------------------------------- |
 | `VITE_SUPABASE_URL`            | URL base do projeto (sem `/rest/v1/`)                                |
 | `VITE_SUPABASE_ANON_KEY`       | Chave **anon/public** (nunca a `service_role`)                       |
-| `VITE_SUPABASE_TABLE`          | Tabela de leads. Default: `[Leads] Geral`                            |
+| `VITE_SUPABASE_TABLE`          | Tabela de leads. Default: `geral`                                    |
 | `VITE_SUPABASE_VENDAS_TABLE`   | Tabela de vendas. Default: `[Compradores] [Ticto] Vendas`            |
 
 ## Pré-requisitos no Supabase
