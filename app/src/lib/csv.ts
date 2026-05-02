@@ -15,11 +15,9 @@ export const COLUMN_LABELS: Record<keyof Lead, string> = {
   utm_term: 'utm_term',
   url: 'URL',
   data: 'Data',
-  data_normalizada: 'Data (normalizada)',
-  source: 'Source',
-  origem: 'Funil (1ª)',
-  origens: 'Origens',
-  status: 'Status',
+  origem_primeira: 'Funil (1ª)',
+  origem_total: 'Origens',
+  status_entrada: 'Status',
 }
 
 export function toCSV(rows: Lead[], columns: (keyof Lead)[]): string {

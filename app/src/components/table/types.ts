@@ -44,10 +44,9 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'segmento', label: 'Segmento', filterKind: 'multi', width: '10rem' },
   { key: 'faturamento', label: 'Faturamento', filterKind: 'multi', width: '10rem' },
   { key: 'data', label: 'Data', filterKind: 'dateRange', width: '7rem' },
-  { key: 'origem', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
-  { key: 'origens', label: 'Origens', filterKind: 'text', width: '16rem' },
-  { key: 'status', label: 'Status', filterKind: 'multi', width: '8rem' },
-  { key: 'source', label: 'Source', filterKind: 'multi', width: '10rem' },
+  { key: 'origem_primeira', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
+  { key: 'origem_total', label: 'Origens', filterKind: 'text', width: '16rem' },
+  { key: 'status_entrada', label: 'Status', filterKind: 'multi', width: '8rem' },
   { key: 'url', label: 'URL', filterKind: 'text', width: '16rem' },
   { key: 'utm_source', label: 'utm_source', filterKind: 'multi', width: '10rem' },
   { key: 'utm_medium', label: 'utm_medium', filterKind: 'multi', width: '10rem' },
@@ -57,7 +56,7 @@ export const COLUMNS: ColumnDef[] = [
 ]
 
 const HIDDEN_BY_DEFAULT: ColumnKey[] = [
-  'origens',
+  'origem_total',
   'url',
   'utm_term',
   'utm_content',

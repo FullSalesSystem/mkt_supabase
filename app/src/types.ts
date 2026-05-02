@@ -13,11 +13,9 @@ export type Lead = {
   utm_term: string | null
   url: string | null
   data: string | null
-  data_normalizada: string | null
-  source: string | null
-  origem: string | null
-  origens: string[] | string | null
-  status: string | null
+  origem_primeira: string | null
+  origem_total: string | null
+  status_entrada: string | null
 }
 
 export type Venda = {
