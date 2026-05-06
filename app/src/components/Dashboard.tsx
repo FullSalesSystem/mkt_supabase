@@ -11,7 +11,7 @@ import { useLeads } from '../hooks/useLeads'
 import { useVendas } from '../hooks/useVendas'
 import { useFiltered } from '../hooks/useFiltered'
 import { initialFilters, type Filters } from '../types'
-import { distinctValues } from '../lib/aggregations'
+import { distinctFunis, distinctValues } from '../lib/aggregations'
 import { fmtNumber } from '../lib/utils'
 import { FiltersPanel } from './Filters'
 import { KpiCards } from './KpiCards'
@@ -56,7 +56,7 @@ export function Dashboard() {
   const filtered = useFiltered(leadsQuery.data, filters)
 
   const funilOptions = useMemo(
-    () => distinctValues(leadsQuery.data ?? [], 'origem_primeira'),
+    () => distinctFunis(leadsQuery.data ?? []),
     [leadsQuery.data],
   )
   const statusOptions = useMemo(

@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import type { Filters, Lead } from '../types'
 import { presetToRange } from '../lib/period'
-import { safeDate } from '../lib/aggregations'
+import { leadFunis, parseHistorico, safeDate } from '../lib/aggregations'
 
 export function useFiltered(rows: Lead[] | undefined, filters: Filters): Lead[] {
   return useMemo(() => {
@@ -26,13 +26,23 @@ export function useFiltered(rows: Lead[] | undefined, filters: Filters): Lead[] 
 
     return rows.filter((r) => {
       if (start || end) {
-        const d = safeDate(r.data)
-        if (!d) return false
-        if (start && d < start) return false
-        if (end && d > end) return false
+        const dates: Date[] = []
+        const main = safeDate(r.data)
+        if (main) dates.push(main)
+        for (const h of parseHistorico(r.historico_reentradas)) {
+          const d = safeDate(h.data ?? null)
+          if (d) dates.push(d)
+        }
+        if (dates.length === 0) return false
+        const inRange = dates.some(
+          (d) => (!start || d >= start) && (!end || d <= end),
+        )
+        if (!inRange) return false
       }
-      if (funilSet.size && !funilSet.has((r.origem_primeira ?? '').trim()))
-        return false
+      if (funilSet.size) {
+        const funis = leadFunis(r)
+        if (!funis.some((f) => funilSet.has(f))) return false
+      }
       if (statusSet.size && !statusSet.has((r.status_entrada ?? '').trim()))
         return false
       if (segSet.size && !segSet.has((r.segmento ?? '').trim())) return false

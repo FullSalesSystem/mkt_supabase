@@ -51,11 +51,8 @@ export function StatusByFunilChart({ rows }: { rows: Lead[] }) {
               cursor={{ fill: 'rgba(255,255,255,0.04)' }}
             />
             <Legend wrapperStyle={{ fontSize: 12 }} />
-            <Bar dataKey="Novo" stackId="a" fill="#22c55e" />
             <Bar dataKey="Entrada" stackId="a" fill="#10b981" />
-            <Bar dataKey="Reentrada" stackId="a" fill="#3b82f6" />
-            <Bar dataKey="Parou" stackId="a" fill="#f43f5e" />
-            <Bar dataKey="Outro" stackId="a" fill="#a78bfa" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="Reentrada" stackId="a" fill="#3b82f6" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

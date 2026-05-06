@@ -1,3 +1,12 @@
+export type HistoricoEntrada = {
+  data?: string | null
+  origem?: string | null
+  utm_source?: string | null
+  cargo?: string | null
+  segmento?: string | null
+  faturamento?: string | null
+}
+
 export type Lead = {
   id: number | string
   nome: string | null
@@ -16,6 +25,7 @@ export type Lead = {
   origem_primeira: string | null
   origem_total: string | null
   status_entrada: string | null
+  historico_reentradas: HistoricoEntrada[] | null
 }
 
 export type Venda = {
