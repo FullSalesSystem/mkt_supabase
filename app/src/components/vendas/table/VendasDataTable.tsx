@@ -24,7 +24,7 @@ import { VendaColumnsMenu } from './VendaColumnsMenu'
 import { Pagination } from '../../table/Pagination'
 import { ConfirmDelete } from '../../table/ConfirmDelete'
 import { downloadVendasCSV, toVendasCSV } from '../../../lib/vendas-csv'
-import { cn, fmtMoney, fmtNumber } from '../../../lib/utils'
+import { cn, fmtBRDate, fmtMoney, fmtNumber } from '../../../lib/utils'
 import { useDeleteVendas } from '../../../hooks/useDeleteVendas'
 import { categorizeVendaStatus, toNumber } from '../../../lib/vendas-aggregations'
 
@@ -411,7 +411,9 @@ function CellValue({
   }
 
   let display: string
-  if (Array.isArray(value)) display = value.join(', ')
+  if (colKey === 'data' || colKey === 'data_venda' || colKey === 'data_pagamento')
+    display = fmtBRDate(value)
+  else if (Array.isArray(value)) display = value.join(', ')
   else display = String(value)
 
   if (colKey === 'status') {

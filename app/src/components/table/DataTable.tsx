@@ -24,7 +24,7 @@ import { ColumnsMenu } from './ColumnsMenu'
 import { Pagination } from './Pagination'
 import { ConfirmDelete } from './ConfirmDelete'
 import { COLUMN_LABELS, downloadCSV, toCSV } from '../../lib/csv'
-import { cn, fmtNumber } from '../../lib/utils'
+import { cn, fmtBRDate, fmtNumber } from '../../lib/utils'
 import { useDeleteLeads } from '../../hooks/useDeleteLeads'
 
 type Props = {
@@ -389,7 +389,11 @@ function CellValue({
     return <span className="text-[var(--color-muted)]">—</span>
   }
   let display: string
-  if (Array.isArray(value)) display = value.join(', ')
+  if (colKey === 'data') display = fmtBRDate(value)
+  else if (colKey === 'historico_reentradas') {
+    const arr = Array.isArray(value) ? value : []
+    display = `${arr.length} entrada${arr.length === 1 ? '' : 's'}`
+  } else if (Array.isArray(value)) display = value.join(', ')
   else display = String(value)
 
   if (colKey === 'status_entrada') {
