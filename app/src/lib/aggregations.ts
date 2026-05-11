@@ -1,5 +1,6 @@
 import { format, parseISO, startOfDay, isValid } from 'date-fns'
 import type { HistoricoEntrada, Lead } from '../types'
+import { categoryOfLead, type Categoria } from './categorias'
 
 const REENTRADA_TOKENS = ['reentrada', 're-entrada', 're entrada']
 const NOVO_TOKENS = ['novo', 'lead novo', 'lead-novo']
@@ -236,6 +237,103 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
     p.taxa = denom ? novos / denom : 0
   }
   return arr
+}
+
+export type Qualificacao = 'quali' | 'semi' | 'desquali' | 'outro'
+
+const STRIP_ACCENTS = (s: string) =>
+  s.normalize('NFD').replace(/[?-?]/g, '')
+
+const normLower = (s: string | null | undefined) =>
+  STRIP_ACCENTS((s ?? '').toString().toLowerCase()).trim()
+
+const QUALI_CARGO_TOKENS = ['socio', 'empresario']
+
+function extractFaturamentoMin(faturamento: string | null | undefined): number | null {
+  const s = normLower(faturamento)
+  if (!s) return null
+  // captura primeiro número (com ponto/vírgula opcional) e infere milhares
+  const match = s.match(/(\d+[\d.,]*)/)
+  if (!match) return null
+  const raw = match[1].replace(/\./g, '').replace(',', '.')
+  const n = Number(raw)
+  if (!Number.isFinite(n)) return null
+  // valores tipicamente vêm em milhares (ex.: "30" = 30k) ou já em reais (ex.: "30000" = 30k)
+  return n >= 1000 ? n / 1000 : n
+}
+
+export function categorizarQualificacao(lead: Lead): Qualificacao {
+  const cargo = normLower(lead.cargo)
+  if (cargo && QUALI_CARGO_TOKENS.some((t) => cargo.includes(t))) return 'quali'
+
+  const fat = normLower(lead.faturamento)
+  if (!fat) return 'outro'
+
+  if (/abaixo|menos|ate\s*30|at[eé]\s*30|0\s*a\s*30/.test(fat)) return 'desquali'
+
+  const min = extractFaturamentoMin(lead.faturamento)
+  if (min == null) return 'outro'
+  if (min < 30) return 'desquali'
+  if (min >= 30 && min < 50) return 'semi'
+  if (min >= 50) return 'outro'
+
+  return 'outro'
+}
+
+export function countQualificacao(rows: Lead[]) {
+  const c: Record<Qualificacao, number> = { quali: 0, semi: 0, desquali: 0, outro: 0 }
+  for (const r of rows) c[categorizarQualificacao(r)]++
+  return c
+}
+
+export type CategoriaStats = {
+  categoria: Categoria
+  leads: Lead[]
+  total: number
+  quali: number
+  semi: number
+  desquali: number
+  outro: number
+  qualificados: number
+  funis: { funil: string; total: number }[]
+}
+
+export function statsByCategoria(rows: Lead[]): Record<Categoria, CategoriaStats> {
+  const buckets: Record<Categoria, Lead[]> = {
+    aplicacao: [],
+    aquisicao: [],
+    outro: [],
+  }
+  for (const r of rows) buckets[categoryOfLead(r)].push(r)
+
+  const build = (cat: Categoria, leads: Lead[]): CategoriaStats => {
+    const q = countQualificacao(leads)
+    const funMap = new Map<string, number>()
+    for (const lead of leads) {
+      const k = (lead.origem_primeira ?? '').trim() || 'Sem funil'
+      funMap.set(k, (funMap.get(k) ?? 0) + 1)
+    }
+    const funis = Array.from(funMap, ([funil, total]) => ({ funil, total })).sort(
+      (a, b) => b.total - a.total,
+    )
+    return {
+      categoria: cat,
+      leads,
+      total: leads.length,
+      quali: q.quali,
+      semi: q.semi,
+      desquali: q.desquali,
+      outro: q.outro,
+      qualificados: q.quali,
+      funis,
+    }
+  }
+
+  return {
+    aplicacao: build('aplicacao', buckets.aplicacao),
+    aquisicao: build('aquisicao', buckets.aquisicao),
+    outro: build('outro', buckets.outro),
+  }
 }
 
 export function distinctValues(rows: Lead[], key: keyof Lead): string[] {

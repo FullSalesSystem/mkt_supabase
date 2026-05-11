@@ -15,6 +15,7 @@ import { distinctFunis, distinctValues } from '../lib/aggregations'
 import { fmtNumber } from '../lib/utils'
 import { FiltersPanel } from './Filters'
 import { KpiCards } from './KpiCards'
+import { CategoriasOverview } from './CategoriasOverview'
 import { StatusByFunilChart } from './charts/StatusByFunilChart'
 import { StatusDonut } from './charts/StatusDonut'
 import { FunilRanking } from './charts/FunilRanking'
@@ -136,7 +137,6 @@ export function Dashboard() {
           <DataTable rows={leadsQuery.data ?? []} />
         ) : section === 'leads' && subTab === 'graficos' ? (
           <div className="space-y-4">
-            <KpiCards rows={filtered} />
             <FiltersPanel
               filters={filters}
               onChange={setFilters}
@@ -144,6 +144,8 @@ export function Dashboard() {
               statusOptions={statusOptions}
               segmentoOptions={segmentoOptions}
             />
+            <KpiCards rows={filtered} />
+            <CategoriasOverview rows={filtered} />
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <StatusByFunilChart rows={filtered} />
               <StatusDonut rows={filtered} />
