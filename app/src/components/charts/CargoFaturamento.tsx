@@ -36,7 +36,7 @@ export function CargoChart({ rows }: { rows: Lead[] }) {
   return (
     <Panel>
       <PanelTitle icon={<UserCheck size={16} className="text-sky-400" />}>
-        Top 10 Cargos
+        Distribuição por Cargo
       </PanelTitle>
       <MiniBars data={data} />
     </Panel>

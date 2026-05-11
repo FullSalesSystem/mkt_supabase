@@ -7,6 +7,12 @@ import {
   normalizeFaturamento,
   type FaturamentoFaixa,
 } from './faturamento'
+import {
+  CARGO_LABEL,
+  CARGO_ORDER,
+  normalizeCargo,
+  type CargoCategoria,
+} from './cargo'
 
 const REENTRADA_TOKENS = ['reentrada', 're-entrada', 're entrada']
 const NOVO_TOKENS = ['novo', 'lead novo', 'lead-novo']
@@ -178,14 +184,16 @@ export function leadsBySegmento(rows: Lead[]) {
 }
 
 export function leadsByCargo(rows: Lead[]) {
-  const map = new Map<string, number>()
+  const map = new Map<CargoCategoria, number>()
   for (const r of rows) {
-    const key = (r.cargo || 'Não informado').trim() || 'Não informado'
-    map.set(key, (map.get(key) ?? 0) + 1)
+    const cat = normalizeCargo(r.cargo)
+    map.set(cat, (map.get(cat) ?? 0) + 1)
   }
-  return Array.from(map, ([cargo, total]) => ({ cargo, total }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 10)
+  return Array.from(map, ([categoria, total]) => ({
+    categoria,
+    cargo: CARGO_LABEL[categoria],
+    total,
+  })).sort((a, b) => CARGO_ORDER[a.categoria] - CARGO_ORDER[b.categoria])
 }
 
 export function leadsByFaturamento(rows: Lead[]) {
@@ -249,17 +257,8 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
 
 export type Qualificacao = 'quali' | 'semi' | 'desquali' | 'outro'
 
-const STRIP_ACCENTS = (s: string) =>
-  s.normalize('NFD').replace(/[?-?]/g, '')
-
-const normLower = (s: string | null | undefined) =>
-  STRIP_ACCENTS((s ?? '').toString().toLowerCase()).trim()
-
-const QUALI_CARGO_TOKENS = ['socio', 'empresario']
-
 export function categorizarQualificacao(lead: Lead): Qualificacao {
-  const cargo = normLower(lead.cargo)
-  if (cargo && QUALI_CARGO_TOKENS.some((t) => cargo.includes(t))) return 'quali'
+  if (normalizeCargo(lead.cargo) === 'socio-empresario') return 'quali'
 
   const faixa = normalizeFaturamento(lead.faturamento)
   if (faixa === 'ate-30k') return 'desquali'
