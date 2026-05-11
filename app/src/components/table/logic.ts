@@ -3,7 +3,12 @@ import { safeDate } from '../../lib/aggregations'
 import { displayLeadValue } from '../../lib/display'
 import type { ColumnFilterValue, ColumnKey, SortDir } from './types'
 
-const NORMALIZED_KEYS = new Set<ColumnKey>(['cargo', 'faturamento'])
+const NORMALIZED_KEYS = new Set<ColumnKey>([
+  'cargo',
+  'faturamento',
+  'qualificacao',
+  'categoria',
+])
 
 const stringify = (v: unknown): string => {
   if (v == null) return ''

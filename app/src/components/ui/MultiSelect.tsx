@@ -4,10 +4,11 @@ import { cn } from '../../lib/utils'
 
 type Props = {
   label: string
-  options: string[]
-  value: string[]
+  options: readonly string[]
+  value: readonly string[]
   onChange: (next: string[]) => void
   placeholder?: string
+  renderLabel?: (opt: string) => string
 }
 
 export function MultiSelect({
@@ -16,6 +17,7 @@ export function MultiSelect({
   value,
   onChange,
   placeholder = 'Selecionar...',
+  renderLabel,
 }: Props) {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -29,8 +31,10 @@ export function MultiSelect({
     return () => document.removeEventListener('mousedown', onDoc)
   }, [])
 
+  const displayLabel = (opt: string) => renderLabel?.(opt) ?? opt
+
   const filtered = options.filter((o) =>
-    o.toLowerCase().includes(query.toLowerCase()),
+    displayLabel(o).toLowerCase().includes(query.toLowerCase()),
   )
 
   const toggle = (opt: string) => {
@@ -52,7 +56,7 @@ export function MultiSelect({
         )}
       >
         <span className={cn('truncate', !value.length && 'text-[var(--color-muted)]')}>
-          {value.length ? value.join(', ') : placeholder}
+          {value.length ? value.map(displayLabel).join(', ') : placeholder}
         </span>
         <div className="flex items-center gap-1.5">
           {value.length > 0 && (
@@ -94,7 +98,7 @@ export function MultiSelect({
                     onClick={() => toggle(opt)}
                     className="flex w-full items-center justify-between rounded-md px-2 py-1.5 text-left text-xs hover:bg-white/5"
                   >
-                    <span className="truncate">{opt}</span>
+                    <span className="truncate">{displayLabel(opt)}</span>
                     {checked && <Check size={14} className="text-emerald-400" />}
                   </button>
                 )

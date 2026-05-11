@@ -40,9 +40,11 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'nome', label: 'Nome', filterKind: 'text', width: '14rem' },
   { key: 'email', label: 'E-mail', filterKind: 'text', width: '14rem' },
   { key: 'telefone', label: 'Telefone', filterKind: 'text', width: '10rem' },
-  { key: 'cargo', label: 'Cargo', filterKind: 'multi', width: '10rem' },
+  { key: 'qualificacao', label: 'Qualificação', filterKind: 'multi', width: '9rem' },
+  { key: 'categoria', label: 'Categoria', filterKind: 'multi', width: '8rem' },
+  { key: 'cargo', label: 'Cargo', filterKind: 'multi', width: '11rem' },
   { key: 'segmento', label: 'Segmento', filterKind: 'multi', width: '10rem' },
-  { key: 'faturamento', label: 'Faturamento', filterKind: 'multi', width: '10rem' },
+  { key: 'faturamento', label: 'Faturamento', filterKind: 'multi', width: '12rem' },
   { key: 'data', label: 'Data', filterKind: 'dateRange', width: '7rem' },
   { key: 'origem_primeira', label: 'Funil (1ª)', filterKind: 'multi', width: '14rem' },
   { key: 'origem_total', label: 'Origens', filterKind: 'text', width: '16rem' },
@@ -56,6 +58,7 @@ export const COLUMNS: ColumnDef[] = [
 ]
 
 const HIDDEN_BY_DEFAULT: ColumnKey[] = [
+  'categoria',
   'origem_total',
   'url',
   'utm_term',

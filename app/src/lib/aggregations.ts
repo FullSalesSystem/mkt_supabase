@@ -1,5 +1,5 @@
 import { format, parseISO, startOfDay, isValid } from 'date-fns'
-import type { HistoricoEntrada, Lead } from '../types'
+import type { HistoricoEntrada, Lead, Qualificacao } from '../types'
 import { categoryOfLead, type Categoria } from './categorias'
 import {
   FATURAMENTO_LABEL,
@@ -255,7 +255,19 @@ export function dailySeries(rows: Lead[]): DailyPoint[] {
   return arr
 }
 
-export type Qualificacao = 'quali' | 'semi' | 'desquali' | 'outro'
+export const QUALIFICACAO_LABEL: Record<Qualificacao, string> = {
+  quali: 'Qualificado',
+  semi: 'Semi-qualificado',
+  desquali: 'Desqualificado',
+  outro: 'Outro',
+}
+
+export const QUALIFICACAO_ORDER: Record<Qualificacao, number> = {
+  quali: 0,
+  semi: 1,
+  desquali: 2,
+  outro: 99,
+}
 
 export function categorizarQualificacao(lead: Lead): Qualificacao {
   if (normalizeCargo(lead.cargo) === 'socio-empresario') return 'quali'

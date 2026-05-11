@@ -1,3 +1,9 @@
+import type { Categoria } from './lib/categorias'
+import type { CargoCategoria } from './lib/cargo'
+import type { FaturamentoFaixa } from './lib/faturamento'
+
+export type Qualificacao = 'quali' | 'semi' | 'desquali' | 'outro'
+
 export type HistoricoEntrada = {
   data?: string | null
   origem?: string | null
@@ -26,6 +32,8 @@ export type Lead = {
   origem_total: string | null
   status_entrada: string | null
   historico_reentradas: HistoricoEntrada[] | null
+  qualificacao?: Qualificacao
+  categoria?: Categoria
 }
 
 export type Venda = {
@@ -68,6 +76,10 @@ export type Filters = {
   funis: string[]
   statuses: string[]
   segmentos: string[]
+  categorias: Categoria[]
+  qualificacoes: Qualificacao[]
+  cargos: CargoCategoria[]
+  faturamentos: FaturamentoFaixa[]
 }
 
 export const initialFilters: Filters = {
@@ -77,6 +89,10 @@ export const initialFilters: Filters = {
   funis: [],
   statuses: [],
   segmentos: [],
+  categorias: [],
+  qualificacoes: [],
+  cargos: [],
+  faturamentos: [],
 }
 
 export type VendasFilters = {

@@ -1,9 +1,25 @@
 import { Filter, RotateCcw } from 'lucide-react'
 import { cn } from '../lib/utils'
-import type { Filters, PeriodPreset } from '../types'
+import type {
+  Filters,
+  PeriodPreset,
+  Qualificacao,
+} from '../types'
 import { initialFilters } from '../types'
 import { Panel, PanelTitle } from './ui/Panel'
 import { MultiSelect } from './ui/MultiSelect'
+import {
+  CARGO_LABEL,
+  CARGO_CATEGORIAS,
+  type CargoCategoria,
+} from '../lib/cargo'
+import {
+  FATURAMENTO_FAIXAS,
+  FATURAMENTO_LABEL,
+  type FaturamentoFaixa,
+} from '../lib/faturamento'
+import { CATEGORIA_LABEL, type Categoria } from '../lib/categorias'
+import { QUALIFICACAO_LABEL } from '../lib/aggregations'
 
 const PRESETS: { id: PeriodPreset; label: string }[] = [
   { id: 'all', label: 'Todos' },
@@ -12,6 +28,14 @@ const PRESETS: { id: PeriodPreset; label: string }[] = [
   { id: '15d', label: 'Últimos 15 dias' },
   { id: '30d', label: 'Últimos 30 dias' },
   { id: '90d', label: 'Últimos 90 dias' },
+]
+
+const CATEGORIA_OPTIONS: Categoria[] = ['aplicacao', 'aquisicao', 'outro']
+const QUALIFICACAO_OPTIONS: Qualificacao[] = [
+  'quali',
+  'semi',
+  'desquali',
+  'outro',
 ]
 
 type Props = {
@@ -38,11 +62,27 @@ export function FiltersPanel({
   const setEnd = (v: string) =>
     onChange({ ...filters, preset: 'custom', endDate: v || null })
 
+  const activeCount =
+    filters.funis.length +
+    filters.statuses.length +
+    filters.segmentos.length +
+    filters.categorias.length +
+    filters.qualificacoes.length +
+    filters.cargos.length +
+    filters.faturamentos.length
+
   return (
     <Panel>
-      <PanelTitle icon={<Filter size={16} className="text-[var(--color-muted)]" />}>
-        Filtros
-      </PanelTitle>
+      <div className="mb-4 flex items-center justify-between">
+        <PanelTitle icon={<Filter size={16} className="text-[var(--color-muted)]" />}>
+          Filtros
+        </PanelTitle>
+        {activeCount > 0 && (
+          <span className="rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-medium text-emerald-300">
+            {activeCount} ativo{activeCount === 1 ? '' : 's'}
+          </span>
+        )}
+      </div>
 
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <span className="text-xs text-[var(--color-muted)] mr-1">Períodos:</span>
@@ -87,13 +127,59 @@ export function FiltersPanel({
         </div>
 
         <MultiSelect
+          label="Categoria"
+          options={CATEGORIA_OPTIONS}
+          value={filters.categorias}
+          onChange={(v) =>
+            onChange({ ...filters, categorias: v as Categoria[] })
+          }
+          renderLabel={(v) => CATEGORIA_LABEL[v as Categoria]}
+          placeholder="Aplicação / Aquisição..."
+        />
+
+        <MultiSelect
+          label="Qualificação"
+          options={QUALIFICACAO_OPTIONS}
+          value={filters.qualificacoes}
+          onChange={(v) =>
+            onChange({ ...filters, qualificacoes: v as Qualificacao[] })
+          }
+          renderLabel={(v) => QUALIFICACAO_LABEL[v as Qualificacao]}
+          placeholder="Qualificado / Semi..."
+        />
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <MultiSelect
+          label="Cargo"
+          options={CARGO_CATEGORIAS}
+          value={filters.cargos}
+          onChange={(v) => onChange({ ...filters, cargos: v as CargoCategoria[] })}
+          renderLabel={(v) => CARGO_LABEL[v as CargoCategoria]}
+          placeholder="Sócio / Gerente / ..."
+        />
+
+        <MultiSelect
+          label="Faturamento"
+          options={FATURAMENTO_FAIXAS}
+          value={filters.faturamentos}
+          onChange={(v) =>
+            onChange({ ...filters, faturamentos: v as FaturamentoFaixa[] })
+          }
+          renderLabel={(v) => FATURAMENTO_LABEL[v as FaturamentoFaixa]}
+          placeholder="Faixas de faturamento..."
+        />
+
+        <MultiSelect
           label="Funil"
           options={funilOptions}
           value={filters.funis}
           onChange={(funis) => onChange({ ...filters, funis })}
           placeholder="Selecionar funil..."
         />
+      </div>
 
+      <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         <MultiSelect
           label="Status"
           options={statusOptions}
@@ -101,9 +187,7 @@ export function FiltersPanel({
           onChange={(statuses) => onChange({ ...filters, statuses })}
           placeholder="Selecionar status..."
         />
-      </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 mt-4">
         <MultiSelect
           label="Segmento"
           options={segmentoOptions}

@@ -418,6 +418,46 @@ function CellValue({
     )
   }
 
+  if (colKey === 'qualificacao') {
+    const tone =
+      display === 'Qualificado'
+        ? 'bg-emerald-500/15 text-emerald-300'
+        : display === 'Semi-qualificado'
+          ? 'bg-amber-500/15 text-amber-300'
+          : display === 'Desqualificado'
+            ? 'bg-rose-500/15 text-rose-300'
+            : 'bg-zinc-500/15 text-zinc-300'
+    return (
+      <span
+        className={cn(
+          'inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium',
+          tone,
+        )}
+      >
+        {display}
+      </span>
+    )
+  }
+
+  if (colKey === 'categoria') {
+    const tone =
+      display === 'Aplicação'
+        ? 'bg-sky-500/15 text-sky-300'
+        : display === 'Aquisição'
+          ? 'bg-emerald-500/15 text-emerald-300'
+          : 'bg-zinc-500/15 text-zinc-300'
+    return (
+      <span
+        className={cn(
+          'inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium',
+          tone,
+        )}
+      >
+        {display}
+      </span>
+    )
+  }
+
   return (
     <span className="block truncate" title={display}>
       {display}

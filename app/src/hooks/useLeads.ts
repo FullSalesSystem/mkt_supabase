@@ -1,8 +1,18 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase, TABLE } from '../lib/supabase'
 import type { Lead } from '../types'
+import { categorizarQualificacao } from '../lib/aggregations'
+import { categoryOfLead } from '../lib/categorias'
 
 const PAGE_SIZE = 1000
+
+function enrich(lead: Lead): Lead {
+  return {
+    ...lead,
+    qualificacao: categorizarQualificacao(lead),
+    categoria: categoryOfLead(lead),
+  }
+}
 
 async function fetchAllLeads(): Promise<Lead[]> {
   const all: Lead[] = []
@@ -18,7 +28,7 @@ async function fetchAllLeads(): Promise<Lead[]> {
       .range(from, to)
     if (error) throw error
     if (!data || data.length === 0) break
-    all.push(...(data as Lead[]))
+    all.push(...(data as Lead[]).map(enrich))
     if (data.length < PAGE_SIZE) break
     from += PAGE_SIZE
   }

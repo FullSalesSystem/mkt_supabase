@@ -20,6 +20,8 @@ export const COLUMN_LABELS: Record<keyof Lead, string> = {
   origem_total: 'Origens',
   status_entrada: 'Status',
   historico_reentradas: 'Histórico',
+  qualificacao: 'Qualificação',
+  categoria: 'Categoria',
 }
 
 export function toCSV(rows: Lead[], columns: (keyof Lead)[]): string {
