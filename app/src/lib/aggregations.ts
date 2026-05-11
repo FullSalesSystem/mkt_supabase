@@ -1,6 +1,12 @@
 import { format, parseISO, startOfDay, isValid } from 'date-fns'
 import type { HistoricoEntrada, Lead } from '../types'
 import { categoryOfLead, type Categoria } from './categorias'
+import {
+  FATURAMENTO_LABEL,
+  FATURAMENTO_ORDER,
+  normalizeFaturamento,
+  type FaturamentoFaixa,
+} from './faturamento'
 
 const REENTRADA_TOKENS = ['reentrada', 're-entrada', 're entrada']
 const NOVO_TOKENS = ['novo', 'lead novo', 'lead-novo']
@@ -183,14 +189,16 @@ export function leadsByCargo(rows: Lead[]) {
 }
 
 export function leadsByFaturamento(rows: Lead[]) {
-  const map = new Map<string, number>()
+  const map = new Map<FaturamentoFaixa, number>()
   for (const r of rows) {
-    const key = (r.faturamento || 'Não informado').trim() || 'Não informado'
-    map.set(key, (map.get(key) ?? 0) + 1)
+    const faixa = normalizeFaturamento(r.faturamento)
+    map.set(faixa, (map.get(faixa) ?? 0) + 1)
   }
-  return Array.from(map, ([faturamento, total]) => ({ faturamento, total })).sort(
-    (a, b) => b.total - a.total,
-  )
+  return Array.from(map, ([faixa, total]) => ({
+    faixa,
+    faturamento: FATURAMENTO_LABEL[faixa],
+    total,
+  })).sort((a, b) => FATURAMENTO_ORDER[a.faixa] - FATURAMENTO_ORDER[b.faixa])
 }
 
 export type DailyPoint = {
@@ -249,34 +257,13 @@ const normLower = (s: string | null | undefined) =>
 
 const QUALI_CARGO_TOKENS = ['socio', 'empresario']
 
-function extractFaturamentoMin(faturamento: string | null | undefined): number | null {
-  const s = normLower(faturamento)
-  if (!s) return null
-  // captura primeiro número (com ponto/vírgula opcional) e infere milhares
-  const match = s.match(/(\d+[\d.,]*)/)
-  if (!match) return null
-  const raw = match[1].replace(/\./g, '').replace(',', '.')
-  const n = Number(raw)
-  if (!Number.isFinite(n)) return null
-  // valores tipicamente vêm em milhares (ex.: "30" = 30k) ou já em reais (ex.: "30000" = 30k)
-  return n >= 1000 ? n / 1000 : n
-}
-
 export function categorizarQualificacao(lead: Lead): Qualificacao {
   const cargo = normLower(lead.cargo)
   if (cargo && QUALI_CARGO_TOKENS.some((t) => cargo.includes(t))) return 'quali'
 
-  const fat = normLower(lead.faturamento)
-  if (!fat) return 'outro'
-
-  if (/abaixo|menos|ate\s*30|at[eé]\s*30|0\s*a\s*30/.test(fat)) return 'desquali'
-
-  const min = extractFaturamentoMin(lead.faturamento)
-  if (min == null) return 'outro'
-  if (min < 30) return 'desquali'
-  if (min >= 30 && min < 50) return 'semi'
-  if (min >= 50) return 'outro'
-
+  const faixa = normalizeFaturamento(lead.faturamento)
+  if (faixa === 'ate-30k') return 'desquali'
+  if (faixa === '30k-50k') return 'semi'
   return 'outro'
 }
 
