@@ -24,6 +24,7 @@ import { ColumnsMenu } from './ColumnsMenu'
 import { Pagination } from './Pagination'
 import { ConfirmDelete } from './ConfirmDelete'
 import { COLUMN_LABELS, downloadCSV, toCSV } from '../../lib/csv'
+import { displayLeadValue } from '../../lib/display'
 import { cn, fmtBRDate, fmtNumber } from '../../lib/utils'
 import { useDeleteLeads } from '../../hooks/useDeleteLeads'
 
@@ -385,6 +386,7 @@ function CellValue({
   value: unknown
   colKey: ColumnKey
 }) {
+  value = displayLeadValue(colKey, value)
   if (value == null || value === '') {
     return <span className="text-[var(--color-muted)]">—</span>
   }

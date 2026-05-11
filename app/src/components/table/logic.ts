@@ -1,6 +1,9 @@
 import type { Lead } from '../../types'
 import { safeDate } from '../../lib/aggregations'
+import { displayLeadValue } from '../../lib/display'
 import type { ColumnFilterValue, ColumnKey, SortDir } from './types'
+
+const NORMALIZED_KEYS = new Set<ColumnKey>(['cargo', 'faturamento'])
 
 const stringify = (v: unknown): string => {
   if (v == null) return ''
@@ -48,7 +51,8 @@ export function columnMatches(
     }
     case 'multi': {
       if (!filter.values.length) return true
-      const value = stringify(raw).trim()
+      const v = NORMALIZED_KEYS.has(key) ? displayLeadValue(key, raw) : raw
+      const value = stringify(v).trim()
       return filter.values.includes(value)
     }
     case 'dateRange': {
@@ -117,8 +121,10 @@ export function applyTable(
 
 export function distinctColumnValues(rows: Lead[], key: ColumnKey): string[] {
   const set = new Set<string>()
+  const normalize = NORMALIZED_KEYS.has(key)
   for (const r of rows) {
-    const v = r[key]
+    const raw = r[key]
+    const v = normalize ? displayLeadValue(key, raw) : raw
     if (Array.isArray(v)) {
       for (const x of v) set.add(String(x).trim())
     } else if (v != null) {

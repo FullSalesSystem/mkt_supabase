@@ -1,4 +1,5 @@
 import type { Lead } from '../types'
+import { displayLeadValue } from './display'
 
 export const COLUMN_LABELS: Record<keyof Lead, string> = {
   id: 'ID',
@@ -32,7 +33,7 @@ export function toCSV(rows: Lead[], columns: (keyof Lead)[]): string {
   }
   const header = columns.map((c) => escape(COLUMN_LABELS[c])).join(',')
   const body = rows
-    .map((r) => columns.map((c) => escape(r[c])).join(','))
+    .map((r) => columns.map((c) => escape(displayLeadValue(c, r[c]))).join(','))
     .join('\n')
   return `${header}\n${body}`
 }
