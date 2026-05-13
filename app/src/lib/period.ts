@@ -7,6 +7,8 @@ export function presetToRange(
   const now = new Date()
   const end = endOfDay(now)
   switch (preset) {
+    case 'hoje':
+      return { start: startOfDay(now), end: endOfDay(now) }
     case 'ontem': {
       const y = subDays(now, 1)
       return { start: startOfDay(y), end: endOfDay(y) }

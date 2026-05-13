@@ -61,6 +61,7 @@ export type Venda = {
 }
 
 export type PeriodPreset =
+  | 'hoje'
   | 'ontem'
   | '7d'
   | '15d'

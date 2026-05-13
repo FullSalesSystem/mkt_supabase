@@ -7,6 +7,7 @@ import { MultiSelect } from '../ui/MultiSelect'
 
 const PRESETS: { id: PeriodPreset; label: string }[] = [
   { id: 'all', label: 'Todos' },
+  { id: 'hoje', label: 'Hoje' },
   { id: 'ontem', label: 'Ontem' },
   { id: '7d', label: 'Últimos 7 dias' },
   { id: '15d', label: 'Últimos 15 dias' },
