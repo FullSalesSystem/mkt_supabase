@@ -274,8 +274,8 @@ export function categorizarQualificacao(lead: Lead): Qualificacao {
 
   const faixa = normalizeFaturamento(lead.faturamento)
   if (faixa === 'ate-30k') return 'desquali'
-  if (faixa === '30k-50k') return 'semi'
-  return 'outro'
+  if (faixa === 'outro') return 'outro'
+  return 'semi'
 }
 
 export function countQualificacao(rows: Lead[]) {
