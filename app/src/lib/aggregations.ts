@@ -64,11 +64,21 @@ export function totalLeads(rows: Lead[]) {
 
 export function uniqueLeads(rows: Lead[]) {
   const set = new Set<string>()
+  let semIdentificador = 0
   for (const r of rows) {
-    const key = (r.email || r.telefone || String(r.id)).toString().trim().toLowerCase()
-    if (key) set.add(key)
+    const email = (r.email ?? '').toString().trim().toLowerCase()
+    if (email) {
+      set.add('e:' + email)
+      continue
+    }
+    const phone = (r.telefone ?? '').toString().trim()
+    if (phone) {
+      set.add('p:' + phone)
+      continue
+    }
+    semIdentificador++
   }
-  return set.size
+  return set.size + semIdentificador
 }
 
 export function countByStatus(rows: Lead[]) {
