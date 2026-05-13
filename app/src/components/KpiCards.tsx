@@ -3,7 +3,6 @@ import {
   UserPlus,
   RotateCcw,
   TrendingUp,
-  Fingerprint,
   CheckCircle2,
   CircleDot,
   XCircle,
@@ -15,7 +14,6 @@ import {
   countQualificacao,
   taxaCadastro,
   totalLeads,
-  uniqueLeads,
 } from '../lib/aggregations'
 import { fmtNumber, fmtPercent } from '../lib/utils'
 import { cn } from '../lib/utils'
@@ -79,7 +77,6 @@ function Card({ label, value, hint, icon, tone }: CardProps) {
 
 export function KpiCards({ rows }: { rows: Lead[] }) {
   const total = totalLeads(rows)
-  const unique = uniqueLeads(rows)
   const status = countByStatus(rows)
   const novos = status.novo + status.entrada
   const reentradas = status.reentrada
@@ -89,18 +86,12 @@ export function KpiCards({ rows }: { rows: Lead[] }) {
   const taxaQuali = total ? q.quali / total : 0
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-8">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-7">
       <Card
         label="Total de Leads"
         value={fmtNumber(total)}
         icon={<Users size={16} />}
         tone="green"
-      />
-      <Card
-        label="Leads Únicos"
-        value={fmtNumber(unique)}
-        icon={<Fingerprint size={16} />}
-        tone="purple"
       />
       <Card
         label="Novos Leads"
