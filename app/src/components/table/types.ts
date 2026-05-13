@@ -57,17 +57,7 @@ export const COLUMNS: ColumnDef[] = [
   { key: 'utm_content', label: 'utm_content', filterKind: 'text', width: '10rem' },
 ]
 
-const HIDDEN_BY_DEFAULT: ColumnKey[] = [
-  'categoria',
-  'origem_total',
-  'url',
-  'utm_term',
-  'utm_content',
-]
-
-export const DEFAULT_VISIBLE: ColumnKey[] = COLUMNS.filter(
-  (c) => !HIDDEN_BY_DEFAULT.includes(c.key),
-).map((c) => c.key)
+export const DEFAULT_VISIBLE: ColumnKey[] = COLUMNS.map((c) => c.key)
 
 export const initialTableState: TableState = {
   sort: { col: 'data', dir: 'desc' },
