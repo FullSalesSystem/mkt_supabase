@@ -24,6 +24,7 @@ type CardProps = {
   label: string
   value: string
   hint?: string
+  description?: string
   icon: ReactNode
   tone: Tone
 }
@@ -50,12 +51,14 @@ const ICON_BG: Record<Tone, string> = {
   rose: 'bg-rose-500/15 text-rose-400',
 }
 
-function Card({ label, value, hint, icon, tone }: CardProps) {
+function Card({ label, value, hint, description, icon, tone }: CardProps) {
   return (
     <div
+      title={description}
       className={cn(
         'rounded-2xl border border-[var(--color-border)] bg-gradient-to-br p-4',
         'ring-1 ring-inset',
+        description && 'cursor-help',
         TONES[tone],
       )}
     >
@@ -90,24 +93,28 @@ export function KpiCards({ rows }: { rows: Lead[] }) {
       <Card
         label="Total de Leads"
         value={fmtNumber(total)}
+        description="Soma de todos os registros no filtro atual, incluindo reentradas. Pode contar o mesmo contato mais de uma vez se ele reentrou."
         icon={<Users size={16} />}
         tone="green"
       />
       <Card
         label="Novos Leads"
         value={fmtNumber(novos)}
+        description="Registros cuja entrada é a primeira (status 'novo' ou 'entrada')."
         icon={<UserPlus size={16} />}
         tone="amber"
       />
       <Card
         label="Reentradas"
         value={fmtNumber(reentradas)}
+        description="Leads que já existiam e voltaram a entrar em algum funil (status 'reentrada')."
         icon={<RotateCcw size={16} />}
         tone="red"
       />
       <Card
         label="Taxa de Cadastro"
         value={fmtPercent(taxa)}
+        description="Proporção de novos sobre o total de entradas: novos ÷ (novos + reentradas)."
         icon={<TrendingUp size={16} />}
         tone="blue"
       />
@@ -115,18 +122,21 @@ export function KpiCards({ rows }: { rows: Lead[] }) {
         label="Qualificados"
         hint={`${fmtPercent(taxaQuali)} dos leads`}
         value={fmtNumber(q.quali)}
+        description="Leads marcados como qualificados na régua de qualificação."
         icon={<CheckCircle2 size={16} />}
         tone="green"
       />
       <Card
         label="Semi-quali"
         value={fmtNumber(q.semi)}
+        description="Leads marcados como semi-qualificados (atendem parte dos critérios)."
         icon={<CircleDot size={16} />}
         tone="orange"
       />
       <Card
         label="Desqualificados"
         value={fmtNumber(q.desquali)}
+        description="Leads marcados como desqualificados (não atendem aos critérios)."
         icon={<XCircle size={16} />}
         tone="rose"
       />

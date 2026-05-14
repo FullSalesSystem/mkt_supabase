@@ -23,12 +23,20 @@ export function Panel({
 export function PanelTitle({
   icon,
   children,
+  tooltip,
 }: {
   icon?: ReactNode
   children: ReactNode
+  tooltip?: string
 }) {
   return (
-    <div className="flex items-center gap-2 text-sm font-medium text-white/90 mb-4">
+    <div
+      title={tooltip}
+      className={cn(
+        'flex items-center gap-2 text-sm font-medium text-white/90 mb-4',
+        tooltip && 'cursor-help',
+      )}
+    >
       {icon}
       <span>{children}</span>
     </div>

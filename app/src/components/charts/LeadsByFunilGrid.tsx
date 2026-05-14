@@ -8,7 +8,10 @@ export function LeadsByFunilGrid({ rows }: { rows: Lead[] }) {
   const data = leadsByFunil(rows)
   return (
     <Panel>
-      <PanelTitle icon={<Zap size={16} className="text-emerald-400" />}>
+      <PanelTitle
+        icon={<Zap size={16} className="text-emerald-400" />}
+        tooltip="Cada lead é contado em cada funil onde apareceu. Leads que reentraram aparecem em todos os funis do histórico, então a soma pode ser maior que o 'Total de Leads'."
+      >
         Leads por Funil
       </PanelTitle>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
