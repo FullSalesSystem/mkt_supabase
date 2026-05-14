@@ -93,7 +93,7 @@ export function KpiCards({ rows }: { rows: Lead[] }) {
       <Card
         label="Total de Leads"
         value={fmtNumber(total)}
-        description="Soma de todos os registros no filtro atual, incluindo reentradas. Pode contar o mesmo contato mais de uma vez se ele reentrou."
+        description="Total de leads no filtro atual. Soma de 'Leads por Funil' e de 'Status por Funil' (Entrada + Reentrada) bate exatamente com este valor."
         icon={<Users size={16} />}
         tone="green"
       />

@@ -104,30 +104,26 @@ export function parseOrigens(value: string | null | undefined): string[] {
     .filter(Boolean)
 }
 
-export function leadFunis(lead: Lead): string[] {
-  const historico = parseHistorico(lead.historico_reentradas)
-  const fromHistorico = historico
-    .map((h) => (h.origem ?? '').toString().trim())
-    .filter(Boolean)
-  if (fromHistorico.length) return fromHistorico
-  const fromTotal = parseOrigens(lead.origem_total)
-  if (fromTotal.length) return fromTotal
+export function leadFunil(lead: Lead): string {
   const primeira = (lead.origem_primeira ?? '').trim()
-  return primeira ? [primeira] : []
+  return primeira || 'Sem funil'
+}
+
+export function leadFunis(lead: Lead): string[] {
+  return [leadFunil(lead)]
 }
 
 export function distinctFunis(rows: Lead[]): string[] {
   const set = new Set<string>()
-  for (const r of rows) for (const f of leadFunis(r)) set.add(f)
+  for (const r of rows) set.add(leadFunil(r))
   return Array.from(set).sort((a, b) => a.localeCompare(b, 'pt-BR'))
 }
 
 export function leadsByFunil(rows: Lead[]) {
   const map = new Map<string, number>()
   for (const r of rows) {
-    const funis = leadFunis(r)
-    const keys = funis.length ? funis : ['Sem funil']
-    for (const k of keys) map.set(k, (map.get(k) ?? 0) + 1)
+    const key = leadFunil(r)
+    map.set(key, (map.get(key) ?? 0) + 1)
   }
   return Array.from(map, ([funil, total]) => ({ funil, total })).sort(
     (a, b) => b.total - a.total,
@@ -137,23 +133,11 @@ export function leadsByFunil(rows: Lead[]) {
 export function statusByFunil(rows: Lead[]) {
   const map = new Map<string, { Entrada: number; Reentrada: number }>()
   for (const r of rows) {
-    const historico = parseHistorico(r.historico_reentradas)
-    if (historico.length > 0) {
-      historico.forEach((h, i) => {
-        const key = (h.origem ?? '').toString().trim() || 'Sem funil'
-        const cur = map.get(key) ?? { Entrada: 0, Reentrada: 0 }
-        if (i === 0) cur.Entrada++
-        else cur.Reentrada++
-        map.set(key, cur)
-      })
-    } else {
-      const key = (r.origem_primeira ?? '').trim() || 'Sem funil'
-      const cur = map.get(key) ?? { Entrada: 0, Reentrada: 0 }
-      const cat = categorizeStatus(r.status_entrada)
-      if (cat === 'reentrada') cur.Reentrada++
-      else cur.Entrada++
-      map.set(key, cur)
-    }
+    const key = leadFunil(r)
+    const cur = map.get(key) ?? { Entrada: 0, Reentrada: 0 }
+    if (categorizeStatus(r.status_entrada) === 'reentrada') cur.Reentrada++
+    else cur.Entrada++
+    map.set(key, cur)
   }
   return Array.from(map, ([funil, c]) => ({
     funil,

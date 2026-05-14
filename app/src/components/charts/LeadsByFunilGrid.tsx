@@ -10,7 +10,7 @@ export function LeadsByFunilGrid({ rows }: { rows: Lead[] }) {
     <Panel>
       <PanelTitle
         icon={<Zap size={16} className="text-emerald-400" />}
-        tooltip="Cada lead é contado em cada funil onde apareceu. Leads que reentraram aparecem em todos os funis do histórico, então a soma pode ser maior que o 'Total de Leads'."
+        tooltip="Cada lead é contado uma vez, no seu funil de origem (origem_primeira). A soma bate com o 'Total de Leads' do filtro atual."
       >
         Leads por Funil
       </PanelTitle>

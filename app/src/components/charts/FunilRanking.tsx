@@ -23,7 +23,7 @@ export function FunilRanking({ rows }: { rows: Lead[] }) {
     <Panel>
       <PanelTitle
         icon={<Trophy size={16} className="text-amber-400" />}
-        tooltip="Ordena os funis pela quantidade de aparições de leads. Reentradas contam em cada funil do histórico, então a soma pode ser maior que o 'Total de Leads'."
+        tooltip="Ordena os funis pela quantidade de leads cuja origem é cada funil. A soma bate com o 'Total de Leads' do filtro atual."
       >
         Ranking de Funis
       </PanelTitle>
