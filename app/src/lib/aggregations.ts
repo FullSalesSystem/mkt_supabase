@@ -245,12 +245,24 @@ export const QUALIFICACAO_ORDER: Record<Qualificacao, number> = {
 }
 
 export function categorizarQualificacao(lead: Lead): Qualificacao {
-  if (normalizeCargo(lead.cargo) === 'socio-empresario') return 'quali'
-
+  const cargo = normalizeCargo(lead.cargo)
   const faixa = normalizeFaturamento(lead.faturamento)
+
+  // Desqualificado: cargos não-decisores OU faturamento abaixo de R$ 30 mil
+  if (cargo === 'colaborador' || cargo === 'prestador' || cargo === 'gerente-lider') {
+    return 'desquali'
+  }
   if (faixa === 'ate-30k') return 'desquali'
-  if (faixa === 'outro') return 'outro'
-  return 'semi'
+
+  // Sócio/Empresário: depende da faixa de faturamento
+  if (cargo === 'socio-empresario') {
+    if (faixa === '30k-50k') return 'semi'
+    if (faixa === 'outro') return 'outro'
+    // 50k-100k, 100k-300k, 300k-1m, acima-1m
+    return 'quali'
+  }
+
+  return 'outro'
 }
 
 export function countQualificacao(rows: Lead[]) {
